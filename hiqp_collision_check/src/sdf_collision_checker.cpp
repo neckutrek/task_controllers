@@ -1,4 +1,5 @@
 #include <hiqp_collision_check/sdf_collision_checker.h>
+#include <Eigen/Geometry>
 
 using namespace hiqp;
 
@@ -8,9 +9,9 @@ SDFCollisionCheck::SDFCollisionCheck() {
 
    nh_.param<std::string>("sdf_map_topic",sdf_map_topic,"sdf_map");
 
-   myGrid_ = NULL;
+   myGrid_ = new float***;
    validMap = false;
-
+   ROS_INFO("Constructor done");
 }
 
 SDFCollisionCheck::~SDFCollisionCheck() {
@@ -26,7 +27,7 @@ SDFCollisionCheck::~SDFCollisionCheck() {
 	    delete[] grid[x];
 	}
 	delete grid;
-	myGrid_ = NULL;
+	delete myGrid_;
     }
 
 }
@@ -34,11 +35,13 @@ SDFCollisionCheck::~SDFCollisionCheck() {
 void SDFCollisionCheck::init() {
     //subscribe to topic
     sdf_map_sub_ = n_.subscribe(sdf_map_topic, 1, &SDFCollisionCheck::mapCallback, this);
+    ROS_INFO("subscribed to topics");
 }
 
 void SDFCollisionCheck::mapCallback(const hiqp_collision_check::SDFMap::ConstPtr& msg) {
     if(!this->isActive()) return;
 
+    ROS_INFO("got a new map");
     //lock data duffer mutex. this should not make any difference as the que size is 1, but just in case
     buffer_mutex.lock();
 
@@ -47,25 +50,27 @@ void SDFCollisionCheck::mapCallback(const hiqp_collision_check::SDFMap::ConstPtr
     xs = XSize;
     ys = YSize;
     zs = ZSize;
-    float ***grid, ***grid_buffer;
-    if(validMap) grid = *myGrid_;
-
+    float ****grid, ***buffer;
+    if(validMap) grid = myGrid_;
+    
     int ctr=0;
     //allocate and copy
-    grid_buffer = new float**[msg->XSize];
+    buffer = new float**[msg->XSize];
     for (int x = 0; x < msg->XSize; ++x)
     {
-	grid_buffer[x] = new float*[msg->YSize];
+	buffer[x] = new float*[msg->YSize];
 	for (int y = 0; y < msg->YSize; ++y)
 	{
-	    grid_buffer[x][y] = new float[msg->ZSize*2];
+	    buffer[x][y] = new float[msg->ZSize*2];
 	    for (int z = 0; z < 2*msg->ZSize; ++z)
 	    {
-		grid_buffer[x][y][z]=msg->grid[ctr];
+		buffer[x][y][z]=msg->grid[ctr];
 		ctr++;
 	    }
 	}
     }
+
+    ROS_INFO("Copied out into buffer");
 
     data_mutex.lock();
     //data swap
@@ -78,22 +83,24 @@ void SDFCollisionCheck::mapCallback(const hiqp_collision_check::SDFMap::ConstPtr
     YSize = msg->YSize;
     ZSize = msg->ZSize;
 
-    myGrid_ = &grid_buffer;
+    *myGrid_ = buffer;
     data_mutex.unlock();
 
+    ROS_INFO("Buffers switched");
     if(validMap) {
 	//dealloc grid
 	for(int x=0; x<xs; ++x) {
 	    for(int y=0; y<ys; ++y) {
-		delete[] grid[x][y];
+		delete[] (*grid)[x][y];
 	    }
-	    delete[] grid[x];
+	    delete[] (*grid)[x];
 	}
-	delete grid;
+	delete (*grid);
     }
-
     validMap = true;
     buffer_mutex.unlock();
+    
+    ROS_INFO("Cleaned up and done");
 }
 
 bool SDFCollisionCheck::obstacleGradient (const Eigen::Vector3d &x, Eigen::Vector3d &g, std::string frame_id) {
@@ -102,16 +109,36 @@ bool SDFCollisionCheck::obstacleGradient (const Eigen::Vector3d &x, Eigen::Vecto
     if(!this->isActive()) return false;
     if(!validMap) return false;
 
-    //TODO if a new frame_id, check on TF for a transformation to the correct frame and buffer
+    //if a new frame_id, check on TF for a transformation to the correct frame and buffer
+    if(frame_id != "") {
+	if(frame_id != request_frame_id) {
+	    //update transform
+	    tf::StampedTransform r2m;
+	    ros::Time now = ros::Time::now();
+	    try {
+		tl.waitForTransform(map_frame_id,request_frame_id, now, ros::Duration(0.15) );
+		tl.lookupTransform(map_frame_id,request_frame_id, now, r2m);
+	    } catch (tf::TransformException ex) {
+		ROS_ERROR("%s",ex.what());
+		return false;
+	    }
+	    tf::transformTFToEigen(r2m,request2map);
+	    request_frame_id = frame_id;
+	}
+    } else {
+	request2map.setIdentity();
+    }
+    //transform x to map frame
+    Eigen::Vector3d x_new;
+    x_new  = request2map*x;
 
     data_mutex.lock();
-    //TODO transform x to map frame
     if(ValidGradient(x)) {
-	g(0) = SDFGradient(x,0);
-	g(1) = SDFGradient(x,1);
-	g(2) = SDFGradient(x,2);
+	g(0) = SDFGradient(x_new,0);
+	g(1) = SDFGradient(x_new,1);
+	g(2) = SDFGradient(x_new,2);
 	g.normalize(); // normal vector
-	g = g*SDF(x);  // scale by interpolated SDF value
+	g = g*SDF(x_new);  // scale by interpolated SDF value
     }
     data_mutex.unlock();
 

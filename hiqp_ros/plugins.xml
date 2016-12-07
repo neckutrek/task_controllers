@@ -8,5 +8,13 @@
       The HiQPJointVelocityController generates velocity commands for a set of joints. It expects a VelocityJointInterface type of hardware interface.
     </description>
   </class>
+  
+  <class name="hiqp_ros/HiQPJointVelocityControllerCollision" 
+         type="hiqp_ros::HiQPJointVelocityControllerCollision" 
+         base_class_type="controller_interface::ControllerBase">
+    <description>
+      The HiQPJointVelocityControllerCollision is a derived class from HiQPJointVelocityController which allows to integrate a collision checker and add tasks for avoiding collisions.
+    </description>
+  </class>
 
 </library>

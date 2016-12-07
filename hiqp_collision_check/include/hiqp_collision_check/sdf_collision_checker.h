@@ -21,6 +21,8 @@ namespace hiqp {
 	    ros::NodeHandle n_;
 	    //where to listen to for new maps
 	    std::string sdf_map_topic;
+	    //for getting into the correct frame
+	    tf::TransformListener tl;
 
 	    boost::mutex buffer_mutex, data_mutex;
 	    ///two 3d arrays of floats: one for the current map and one for receive buffer
@@ -29,6 +31,9 @@ namespace hiqp {
 	    float ****myGrid_;
 	    ///sets to true once we have a first valid map
 	    bool validMap;
+
+	    std::string request_frame_id;
+	    Eigen::Affine3d request2map;
 
 	    ///metadata from message
 	    std::string map_frame_id;
@@ -53,7 +58,13 @@ namespace hiqp {
 	    virtual bool obstacleGradient (const Eigen::Vector3d &x, Eigen::Vector3d &g, std::string frame_id="");
 	    virtual bool obstacleGradientBulk (const CollisionCheckerBase::SamplesVector &x, CollisionCheckerBase::SamplesVector &g, std::string frame_id="");
 	    virtual void init();
+	    /// is the gradient smaller than the truncation size?
+	    virtual bool isValid (const Eigen::Vector3d &grad) {
+		return (grad(0) > Dmin && grad(0) < Dmax &&
+			grad(1) > Dmin && grad(1) < Dmax &&
+			grad(2) > Dmin && grad(2) < Dmax); 
 
+	    }
 	    SDFCollisionCheck();
 	    virtual ~SDFCollisionCheck();
 

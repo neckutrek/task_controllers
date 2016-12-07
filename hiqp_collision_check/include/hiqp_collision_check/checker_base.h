@@ -5,6 +5,7 @@
 #include <Eigen/StdVector>
 #include <vector>
 #include <boost/thread/mutex.hpp>
+#include <ros/ros.h>
 
 //#include <boost/thread/
 namespace hiqp {
@@ -21,16 +22,20 @@ namespace hiqp {
 	    virtual bool obstacleGradient (const Eigen::Vector3d &x, Eigen::Vector3d &g, std::string frame_id="") = 0;
 	    virtual bool obstacleGradientBulk (const SamplesVector &x, SamplesVector &g, std::string frame_id="") = 0;
 	    virtual void init() = 0;
+	    //to check if a gradient to an obstacle is valid
+	    virtual bool isValid (const Eigen::Vector3d &grad) = 0; 
 
 	    void activate() { 
 		active_mutex.lock();
 		isActive_ = true; 
 		active_mutex.unlock();
+		ROS_INFO("Collision check activated");
 	    }
 	    void deactivate() { 
 		active_mutex.lock();
 		isActive_ = false; 
 		active_mutex.unlock();
+		ROS_INFO("Collision check deactivated");
 	    }
 
 	    bool isActive() { 

@@ -10,6 +10,7 @@ class HiQPJointVelocityControllerCollision : public HiQPJointVelocityController 
 
     public:
 	void initialize();
+	void setJointControls(Eigen::VectorXd& u);
 
 	void starting(const ros::Time& time) {
 	    if(collisionChecker!=nullptr) {
@@ -23,7 +24,8 @@ class HiQPJointVelocityControllerCollision : public HiQPJointVelocityController 
 	}
 
     protected:
-	std::shared_ptr<hiqp::CollisionCheckerBase> collisionChecker;	
+	std::shared_ptr<hiqp::CollisionCheckerBase> collisionChecker;
+	int ctr;	
 
 };
     

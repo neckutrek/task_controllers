@@ -14,6 +14,25 @@ void HiQPJointVelocityControllerCollision::initialize() {
     //create a new sdf collsion checker
     ROS_INFO("Initializing collision checker");
     collisionChecker = std::make_shared<hiqp::SDFCollisionCheck> ();
+    collisionChecker->init();
+
+    ctr = 0;
+}
+
+void HiQPJointVelocityControllerCollision::setJointControls(Eigen::VectorXd& u) {
+    HiQPJointVelocityController::setJointControls(u);
+    
+    // for testing, ask a random point within map for a gradient
+    Eigen::Vector3d pt;
+    pt<<0,(double)ctr/1000 - 1,0;
+    ctr = ctr<2000 ? ctr++ : 0;
+
+    Eigen::Vector3d grad;
+    if(collisionChecker->obstacleGradient(pt,grad)) {
+	if(collisionChecker->isValid(grad)) {
+	    std::cerr<<grad.transpose()<<std::endl;
+	}
+    }
 }
 
 }

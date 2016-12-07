@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!--
+  This file:
+   - launches Gazebo without gui
+   - spawns the urdf model of YuMi on the parameter server
+   - loads the yumi.yaml yaml file
+   - loads the yumi_preload.yaml yaml file (predefined joint limits, primitives and tasks)
+   - spawns controllers specified by the controllers argument
+   - launches the robot_state_publisher node
+   - launches RviZ to visualize YuMi and HiQP
+  -->
+
+  <arg name="hardware_interface" default="VelocityJointInterface"/>
+  <arg name="controllers" default="joint_state_controller hiqp_joint_velocity_controller_collision"/>
+
+  <arg name="paused" default="false"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="gui" default="false"/>
+  <arg name="headless" default="false"/>
+  <arg name="debug" default="false"/>
+
+  <arg unless="$(arg debug)" name="launch_prefix" value="" />
+  <arg if="$(arg debug)" name="launch_prefix" value="gdb --ex run --args" />
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="debug" value="$(arg debug)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+    <arg name="headless" value="$(arg headless)"/>
+  </include>
+
+  <param name="robot_description" 
+         command="$(find xacro)/xacro.py '$(find yumi_description)/urdf/yumi.urdf.xacro' prefix:=$(arg hardware_interface)" />
+
+  <node name="urdf_spawner" 
+        pkg="gazebo_ros" 
+        type="spawn_model" 
+        respawn="false" 
+        output="screen"
+        args="-urdf -model yumi -param robot_description"/>
+
+
+  <rosparam file="$(find hiqp_ros)/config/yumi.yaml" command="load"/>
+  <rosparam file="$(find hiqp_ros)/config/yumi_preload.yaml" command="load"/>
+
+  <node name="controller_spawner" 
+        pkg="controller_manager" 
+        type="spawner" 
+        respawn="false" 
+        output="screen"
+        ns="/yumi"
+        args="$(arg controllers)"/>
+
+  <node name="robot_state_publisher" 
+        pkg="robot_state_publisher" 
+        type="robot_state_publisher" 
+        respawn="false" 
+        output="screen">
+    <remap from="/joint_states" to="/yumi/joint_states" />
+  </node>
+
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find hiqp_ros)/launch/yumi.rviz"/>
+
+</launch>

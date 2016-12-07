@@ -22,12 +22,14 @@
 #include <hiqp/hiqp_time_point.h>
 #include <hiqp/task_definition.h>
 
+#include <kdl/treefksolverpos_recursive.hpp>
+#include <kdl/treejnttojacsolver.hpp>
+
 namespace hiqp
 {
 namespace tasks
 {
-
-  /*! \brief A task definition that avoids collisions between given geometric primitives on the manipulator and the environment represented by a SDF map.
+  /*! \brief A task definition that allows avoidance of geometric primitives on the manipulator with the environment given as a SDF map.
    *  \author Robert Krug */  
   class TaskAvoidCollisionsSDF : public TaskDefinition {
   public:
@@ -50,9 +52,8 @@ namespace tasks
     TaskAvoidCollisionsSDF& operator=(const TaskAvoidCollisionsSDF& other) = delete;
     TaskAvoidCollisionsSDF& operator=(TaskAvoidCollisionsSDF&& other) noexcept = delete;
 
-    std::string              link_name_;
-    int                      joint_q_nr_;
-    double                   desired_configuration_;
+    std::shared_ptr<KDL::TreeFkSolverPos_recursive>  fk_solver_pos_;
+    std::shared_ptr<KDL::TreeJntToJacSolver>         fk_solver_jac_;
   };
 
 } // namespace tasks

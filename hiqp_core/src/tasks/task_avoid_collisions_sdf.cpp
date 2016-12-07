@@ -28,40 +28,47 @@ namespace tasks
 int TaskAvoidCollisionsSDF::init(const std::vector<std::string>& parameters,
                         RobotStatePtr robot_state,
                         unsigned int n_controls) {
-  int size = parameters.size();
-  if (size != 3) {
-    printHiqpWarning("TaskAvoidCollisionsSDF requires 3 parameters, got " 
+//   std::cout<<"printing parameters:"<<std::endl;
+//   for (int i=0; i<parameters.size();i++)
+//     {
+//       std::cout<<parameters.at(i)<<std::endl;
+// }
+   int size = parameters.size();
+  if (size <= 2) {
+    printHiqpWarning("TaskAvoidCollisionsSDF requires at least 2 parameters, got " 
       + std::to_string(size) + "! Initialization failed!");
     return -1;
   }
 
-  link_name_ = parameters.at(1);
+  // link_name_ = parameters.at(1);
 
-  joint_q_nr_ = kdl_getQNrFromLinkName(robot_state->kdl_tree_, link_name_);
+  // joint_q_nr_ = kdl_getQNrFromLinkName(robot_state->kdl_tree_, link_name_);
 
-  if (joint_q_nr_ < 0) {
-    printHiqpWarning("TaskAvoidCollisionsSDF::init, couldn't find joint '" + link_name_ + "'! Initialization failed.");
-    return -2;
-  }
+  // if (joint_q_nr_ < 0) {
+  //   printHiqpWarning("TaskAvoidCollisionsSDF::init, couldn't find joint '" + link_name_ + "'! Initialization failed.");
+  //   return -2;
+  // }
 
-  desired_configuration_ = std::stod( parameters.at(2) );
+  // desired_configuration_ = std::stod( parameters.at(2) );
 
-  e_.resize(1);
-  J_.resize(1, n_controls);
-  performance_measures_.resize(0);
-  task_types_.insert(task_types_.begin(), 1, 0);
+  // e_.resize(1);
+  // J_.resize(1, n_controls);
+  // performance_measures_.resize(0);
+  // task_types_.insert(task_types_.begin(), 1, 0);
 
-  for (int i=0; i<n_controls; ++i) 
-    J_(0, i) = 0;
+  // for (int i=0; i<n_controls; ++i) 
+  //   J_(0, i) = 0;
 
-  J_(0, joint_q_nr_) = -1;
+  // J_(0, joint_q_nr_) = -1;
 
   return 0;
 }
 
 int TaskAvoidCollisionsSDF::update(RobotStatePtr robot_state) {
-  const KDL::JntArray &q = robot_state->kdl_jnt_array_vel_.q;
-  e_(0) = desired_configuration_ - q(joint_q_nr_);
+  // const KDL::JntArray &q = robot_state->kdl_jnt_array_vel_.q;
+  // e_(0) = desired_configuration_ - q(joint_q_nr_);
+  std::cout<<"Updating TaskAvoidCollisionsSDF"<<std::endl;
+
   return 0;
 }
 

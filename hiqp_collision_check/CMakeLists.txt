@@ -8,7 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   message_generation
-  cmake_modules 
+  cmake_modules tf tf_conversions eigen_conversions
 )
 
 ## System dependencies are found with CMake's conventions
@@ -40,7 +40,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES hiqp_collision_check
-  CATKIN_DEPENDS roscpp std_msgs message_runtime
+  CATKIN_DEPENDS roscpp std_msgs message_runtime tf tf_conversions eigen_conversions
 #  DEPENDS system_lib
 )
 

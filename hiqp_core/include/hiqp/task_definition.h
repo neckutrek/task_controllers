@@ -53,7 +53,7 @@ namespace hiqp
 
     virtual int monitor() = 0;
 
-    unsigned int            getDimensions()       { return n_dimensions_; }
+      unsigned int            getDimensions()       { return n_dimensions_; }
     Eigen::VectorXd         getInitialValue()     { return e_initial_; }
     Eigen::MatrixXd         getInitialJacobian()  { return J_initial_; }
     /// \todo rename to getFinalTaskFunctionValue
@@ -61,11 +61,12 @@ namespace hiqp
       { return Eigen::VectorXd::Zero(e_.rows()); }
 
   protected:
-    Eigen::VectorXd                 e_; // the performance value of the task
+    Eigen::VectorXd                 e_; // the task function value
     Eigen::MatrixXd                 J_; // the task jacobian
     /// \todo rename to task_senses_
     std::vector<int>                task_types_; // -1 leq, 0 eq, 1 geq
     Eigen::VectorXd                 performance_measures_;
+    /// \bug n_dimensions_ is never set in any of the derived tasks
     unsigned int                    n_dimensions_;
 
     inline std::string  getTaskName()                      { return task_name_; }

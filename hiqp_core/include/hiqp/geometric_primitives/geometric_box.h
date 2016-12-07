@@ -37,10 +37,11 @@ namespace geometric_primitives
   class GeometricBox : public GeometricPrimitive {
   public:
     GeometricBox(const std::string& name,
+                  const std::string& type,
                  const std::string& frame_id,
                  bool visible,
                  const std::vector<double>& color)
-     : GeometricPrimitive(name, frame_id, visible, color) {}
+      : GeometricPrimitive(name, type, frame_id, visible, color) {}
 
     ~GeometricBox() noexcept = default;
 

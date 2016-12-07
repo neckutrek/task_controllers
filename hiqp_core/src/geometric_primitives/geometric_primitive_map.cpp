@@ -49,7 +49,7 @@ int GeometricPrimitiveMap::addGeometricPrimitive
 
   if (type.compare("point") == 0)
   {
-    auto primitive = std::make_shared<GeometricPoint>(name, frame_id, visible, color);
+    auto primitive = std::make_shared<GeometricPoint>(name, type, frame_id, visible, color);
     if (primitive->init(parameters) == 0)
     {
       point_map_.emplace( name, primitive );
@@ -58,7 +58,7 @@ int GeometricPrimitiveMap::addGeometricPrimitive
   }
   else if (type.compare("line") == 0)
   {
-    auto primitive = std::make_shared<GeometricLine>(name, frame_id, visible, color);
+    auto primitive = std::make_shared<GeometricLine>(name, type, frame_id, visible, color);
     if (primitive->init(parameters) == 0)
     {
       line_map_.emplace( name, primitive );
@@ -68,7 +68,7 @@ int GeometricPrimitiveMap::addGeometricPrimitive
   }
   else if (type.compare("plane") == 0)
   {
-    auto primitive = std::make_shared<GeometricPlane>(name, frame_id, visible, color);
+    auto primitive = std::make_shared<GeometricPlane>(name, type, frame_id, visible, color);
     if (primitive->init(parameters) == 0)
     {
       plane_map_.emplace( name, primitive );
@@ -78,7 +78,7 @@ int GeometricPrimitiveMap::addGeometricPrimitive
   }
   else if (type.compare("box") == 0)
   {
-    auto primitive = std::make_shared<GeometricBox>(name, frame_id, visible, color);
+    auto primitive = std::make_shared<GeometricBox>(name, type, frame_id, visible, color);
     if (primitive->init(parameters) == 0)
     {
       box_map_.emplace( name, primitive );
@@ -87,7 +87,7 @@ int GeometricPrimitiveMap::addGeometricPrimitive
   }
   else if (type.compare("cylinder") == 0)
   {
-    auto primitive = std::make_shared<GeometricCylinder>(name, frame_id, visible, color);
+    auto primitive = std::make_shared<GeometricCylinder>(name, type, frame_id, visible, color);
     if (primitive->init(parameters) == 0)
     {
       cylinder_map_.emplace( name, primitive );
@@ -96,7 +96,7 @@ int GeometricPrimitiveMap::addGeometricPrimitive
   }
   else if (type.compare("sphere") == 0)
   {
-    auto primitive = std::make_shared<GeometricSphere>(name, frame_id, visible, color);
+    auto primitive = std::make_shared<GeometricSphere>(name, type,  frame_id, visible, color);
     if (primitive->init(parameters) == 0)
     {
       sphere_map_.emplace( name, primitive );
@@ -105,7 +105,7 @@ int GeometricPrimitiveMap::addGeometricPrimitive
   }
   else if (type.compare("frame") == 0)
   {
-    auto primitive = std::make_shared<GeometricFrame>(name, frame_id, visible, color);
+    auto primitive = std::make_shared<GeometricFrame>(name, type, frame_id, visible, color);
     if (primitive->init(parameters) == 0)
     {
       frame_map_.emplace( name, primitive );

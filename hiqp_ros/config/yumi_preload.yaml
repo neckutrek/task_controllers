@@ -17,15 +17,14 @@ yumi:
       - link_frame: yumi_link_7_r
         limitations: [2.2689, -4.0, 4.0] 
 
-
      hiqp_preload_geometric_primitives:
     #   #####      OBSTACLE AVOIDANCE PRIMITIVES    #####
       - name: floor_avoidance_plane
         type: plane 
-        frame_id: world
+        frame_id: yumi_body
         visible: true
         color: [0.5, 0.5, 0.5, 1.0]
-        parameters: [0.0, 0.0, 1.0, 0.115]
+        parameters: [0.0, 0.0, 1.0, 0.02]
       - name: yumi_link_5_r_avoidance_sphere
         type: sphere 
         frame_id: yumi_link_5_r

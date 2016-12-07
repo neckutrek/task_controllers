@@ -42,6 +42,7 @@ namespace tasks
       desired_configuration_.resize(0);
       for (int i=1; i < n_controls+1; ++i) {
         desired_configuration_.push_back( std::stod( parameters.at(i) ) );
+
       }
     }
 
@@ -60,15 +61,17 @@ namespace tasks
 
     return 0;
   }
-
+/// \bug Noticed, that the measured values for the 4 gripper joints can be huge which causes the optimization to fail for this task. Maybe due to the discrepancy between specified and controlled joints ...?  
   int TaskFullPose::update(RobotStatePtr robot_state) {
     const KDL::JntArray &q = robot_state->kdl_jnt_array_vel_.q;
     double diff = 0;
     for (int i=0; i<q.rows(); ++i) {
       e_(i) = desired_configuration_.at(i) - q(i);
+      // std::cerr<<"desired_config(i): "<<desired_configuration_.at(i)<<" q(i): "<<q(i)<<std::endl;
     }
     // std::cout << "--- update ---\n";
     // std::cout << "update e_ = " << e_ << "\n";
+
     return 0;
   }
 

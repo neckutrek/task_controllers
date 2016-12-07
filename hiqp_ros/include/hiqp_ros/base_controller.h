@@ -163,7 +163,7 @@ namespace hiqp_ros {
     if (n_joint_names > n_joints_) {
       ROS_ERROR_STREAM("In ROSKinematicsController: The .yaml file"
         << " includes more joint names than specified in the .urdf file."
-        << " Could not succeffully initialize controller. Aborting!\n");
+        << " Could not successfully initialize controller. Aborting!\n");
       return -3;
     }
 
@@ -198,6 +198,10 @@ namespace hiqp_ros {
         qdot(handle.first) = handle.second.getVelocity();
         effort(handle.first) = handle.second.getEffort();
       }
+      /* std::cerr<<"sampled joint positions: "<<q.data.transpose()<<std::endl; */
+      /* std::cerr<<"sampled joint velocities: "<<qdot.data.transpose()<<std::endl; */
+      /* std::cerr<<"sampled joint efforts: "<<effort.data.transpose()<<std::endl; */
+
       ros::Time t = ros::Time::now();
       robot_state_data_.sampling_time_.setTimePoint(t.sec, t.nsec);
     handles_mutex_.unlock();

@@ -16,6 +16,7 @@
 
 #include <hiqp/task.h>
 #include <hiqp/tasks/task_full_pose.h>
+#include <hiqp/tasks/task_avoid_collisions_sdf.h>
 #include <hiqp/tasks/task_jnt_config.h>
 #include <hiqp/tasks/task_jnt_limits.h>
 #include <hiqp/tasks/task_geometric_projection.h>
@@ -36,7 +37,7 @@ namespace hiqp {
   using tasks::TaskJntLimits;
   using tasks::TaskGeometricProjection;
   using tasks::TaskGeometricAlignment;
-
+  using tasks::TaskAvoidCollisionsSDF;
   using tasks::DynamicsFirstOrder;
   using tasks::DynamicsJntLimits;
   using tasks::DynamicsMinimalJerk;
@@ -94,6 +95,8 @@ namespace hiqp {
       def_ = std::make_shared<TaskFullPose>(geom_prim_map_, visualizer_);
     } else if (type.compare("TDefJntConfig") == 0) {
       def_ = std::make_shared<TaskJntConfig>(geom_prim_map_, visualizer_);
+    } else if (type.compare("TDefAvoidCollisionsSDF") == 0) {
+      def_ = std::make_shared<TaskAvoidCollisionsSDF>(geom_prim_map_, visualizer_);
     } else if (type.compare("TDefJntLimits") == 0) {
       def_ = std::make_shared<TaskJntLimits>(geom_prim_map_, visualizer_);
     } else if (type.compare("TDefGeomProj") == 0) {

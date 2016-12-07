@@ -35,16 +35,16 @@ template<>
 void ROSTopicSubscriber::topicCallback<geometry_msgs::PoseStamped>(const geometry_msgs::PoseStamped& msg) {
 
 	double x = msg.pose.position.x;
-	if (x > 1.8) x = 1.8;
+	if (x > 0.55) x = 0.55;
 	if (x < 0) x = 0;
 
 	double y = msg.pose.position.y;
-	if (y > 1.8) y = 1.8;
-	if (y < -1.8) y = -1.8;
+	if (y > 0.5) y = 0.5;
+	if (y < -0.5) y = -0.5;
 
 	double z = msg.pose.position.z;
-	if (z > 2.8) z = 2.8;
-	if (z < -0.5) z = -0.5;
+	if (z > 0.55) z = 0.55;
+	if (z < 0.07) z = 0.07;
 
 	std::vector<double> wintracker_frame_params;
 	wintracker_frame_params.push_back(x);

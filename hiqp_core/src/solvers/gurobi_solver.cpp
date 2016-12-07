@@ -157,8 +157,11 @@ namespace hiqp
           delete[] coeff_x;
           delete[] coeff_w;
 
-          // model.write("/home/rkg/Desktop/model.lp");
-          // model.write("/home/rkg/Desktop/model.sol");
+	  // std::cerr<<"A"<<A_<<std::endl;
+	  // std::cerr<<"b"<<b_<<std::endl;
+	  // std::cerr<<"w"<<w_<<std::endl;
+	  //model.write("/home/yumi/Desktop/model.lp");
+	  //model.write("/home/yumi/Desktop/model.sol");
 
           return false;
         }
@@ -170,9 +173,9 @@ namespace hiqp
           for(unsigned int i=0; i<s_dim; i++)
             w_(s_acc_dim + i) = w[i].get(GRB_DoubleAttr_X);
         } catch(GRBException e) {
-          ROS_ERROR("In HQPSolver::solve(...): Gurobi exception with error code %d, and error message %s when trying to extract the solution variables.", e.getErrorCode(), e.getMessage().c_str());
-          // model.write("/home/rkg/Desktop/model.lp");
-          // model.write("/home/rkg/Desktop/model.sol");
+          std::cerr<<"In HQPSolver::solve(...): Gurobi exception with error code" <<e.getErrorCode()<<", and error message "<<e.getMessage().c_str()<<" when trying to extract the solution variables."<<std::endl;
+          // model.write("/home/yumi/Desktop/model.lp");
+          // model.write("/home/yumi/Desktop/model.sol");
 
           return false;
         }
@@ -190,7 +193,7 @@ namespace hiqp
         delete[] coeff_w;
       } // for (it; it!=stages_map_.end(); ++it)
     } catch(GRBException e) {
-      ROS_ERROR("In HQPSolver::solve(...): Gurobi exception with error code %d, and error message %s.", e.getErrorCode(), e.getMessage().c_str());
+      std::cerr<<"In HQPSolver::solve(...): Gurobi exception with error code "<<e.getErrorCode()<<", and error message "<<e.getMessage().c_str()<<"."<<std::endl;
       return false;
     }
     return true;

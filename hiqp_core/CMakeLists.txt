@@ -63,6 +63,7 @@ add_library(${PROJECT_NAME} src/utilities.cpp
                             src/tasks/task_geometric_alignment.cpp
                             src/tasks/task_jnt_config.cpp
                             src/tasks/task_jnt_limits.cpp
+                            src/tasks/task_avoid_collisions_sdf.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} 

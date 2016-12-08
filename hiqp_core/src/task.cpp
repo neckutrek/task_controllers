@@ -75,7 +75,7 @@ namespace hiqp {
     dyn_->active_ = active_;
     dyn_->visible_ = visible_;
 
-    int init_def = def_->initialize(def_params, robot_state, n_controls_);
+    int init_def = def_->initialize(def_params, robot_state);
     int init_dyn = dyn_->init(dyn_params, robot_state, def_->getInitialValue(), def_->getFinalValue(robot_state));
     return (init_def != 0 || init_dyn != 0 ? -5 : 0);
   }

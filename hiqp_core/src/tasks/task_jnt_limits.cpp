@@ -25,8 +25,7 @@ namespace tasks
 {
 
   int TaskJntLimits::init(const std::vector<std::string>& parameters,
-                          RobotStatePtr robot_state,
-                          unsigned int n_controls) {
+                          RobotStatePtr robot_state) {
     int size = parameters.size();
     if (size != 4)
     {
@@ -35,8 +34,9 @@ namespace tasks
       return -1;
     }
 
+    unsigned int n_joints = robot_state->getNumJoints();
     e_.resize(4);
-    J_.resize(4, n_controls);
+    J_.resize(4, n_joints);
     performance_measures_.resize(0);
 
     task_types_.resize(4);
@@ -51,7 +51,7 @@ namespace tasks
     jnt_upper_bound_ = std::stod( parameters.at(3) );
 
     for (int i=0; i<4; ++i) {
-      for (int j=0; j<n_controls; ++j) {
+      for (int j=0; j<n_joints; ++j) {
         J_(i, j) = (j == link_frame_q_nr_ ? 1 : 0);
       }
     }

@@ -28,7 +28,7 @@ find_package(catkin REQUIRED COMPONENTS roscpp
                                         controller_interface
                                         visualization_msgs
                                         hiqp_core
-					hiqp_collision_check
+					                    hiqp_collision_check
                                         hiqp_msgs)
 
 find_package(orocos_kdl REQUIRED)
@@ -46,7 +46,7 @@ link_directories(${GUROBI_LIB_DIR})
 
 add_library(${PROJECT_NAME} src/hiqp_joint_velocity_controller.cpp
                             src/hiqp_joint_velocity_controller_collision.cpp
-			    src/ros_topic_subscriber.cpp
+			                src/ros_topic_subscriber.cpp
                             src/ros_visualizer.cpp
                             src/utilities.cpp)
 

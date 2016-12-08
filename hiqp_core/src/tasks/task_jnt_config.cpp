@@ -26,8 +26,7 @@ namespace tasks
 
 
 int TaskJntConfig::init(const std::vector<std::string>& parameters,
-                        RobotStatePtr robot_state,
-                        unsigned int n_controls) {
+                        RobotStatePtr robot_state) {
   int size = parameters.size();
   if (size != 3) {
     printHiqpWarning("TaskJntConfig requires 3 parameters, got " 
@@ -46,12 +45,13 @@ int TaskJntConfig::init(const std::vector<std::string>& parameters,
 
   desired_configuration_ = std::stod( parameters.at(2) );
 
+  unsigned int n_joints = robot_state->getNumJoints();
   e_.resize(1);
-  J_.resize(1, n_controls);
+  J_.resize(1, n_joints);
   performance_measures_.resize(0);
   task_types_.insert(task_types_.begin(), 1, 0);
 
-  for (int i=0; i<n_controls; ++i) 
+  for (int i=0; i<n_joints; ++i) 
     J_(0, i) = 0;
 
   J_(0, joint_q_nr_) = -1;

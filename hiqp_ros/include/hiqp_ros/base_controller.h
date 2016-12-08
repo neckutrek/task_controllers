@@ -66,9 +66,6 @@ namespace hiqp_ros {
   protected:
     inline ros::NodeHandle& getControllerNodeHandle() { return controller_nh_; }
     inline unsigned int getNJoints() { return n_joints_; }
-    inline const std::string& getRootName() { return root_name_; }
-    inline const std::string& getTipName() { return tip_name_; }
-    inline const KDL::Chain& getKDLChain() { return kdl_chain_; }
     inline RobotStatePtr getRobotState() { return robot_state_ptr_; }
 
   private:
@@ -92,11 +89,6 @@ namespace hiqp_ros {
     HardwareInterfaceT*                   hardware_interface_;
     JointHandleMap                        joint_handles_map_;
     std::mutex                            handles_mutex_; 
-
-    std::string                           root_name_; // root link name
-    std::string                           tip_name_; // tip (end-effector) link name
-
-    KDL::Chain                            kdl_chain_; // chain of links from root to tip
     
     unsigned int                          n_joints_;
 
@@ -115,8 +107,6 @@ namespace hiqp_ros {
     robot_state_ptr_.reset(&robot_state_data_);
     loadUrdfToKdlTree();
     loadJointsAndSetJointHandlesMap();
-    controller_nh_.getParam("root_name", root_name_);
-    controller_nh_.getParam("tip_name", tip_name_);
     sampleJointValues();
 
     initialize();
@@ -167,11 +157,17 @@ namespace hiqp_ros {
       return -3;
     }
 
+    std::vector<unsigned int> qnrs;
+    hiqp::kdl_getAllQNrFromTree(robot_state_data_.kdl_tree_, qnrs);
+    robot_state_data_.joint_handle_info_.clear();
+
     for (auto&& name : joint_names) {
       try {
         unsigned int q_nr = hiqp::kdl_getQNrFromJointName(robot_state_data_.kdl_tree_, name);
         //std::cout << "Joint found: '" << name << "', qnr: " << q_nr << "\n";
         joint_handles_map_.emplace(q_nr, hardware_interface_->getHandle(name));
+        qnrs.erase(std::remove(qnrs.begin(), qnrs.end(), q_nr), qnrs.end());
+        robot_state_data_.joint_handle_info_.push_back(hiqp::JointHandleInfo(q_nr, name, true, true));
       } catch (const hardware_interface::HardwareInterfaceException& e) {
         ROS_ERROR_STREAM("Exception thrown: " << e.what());
         return -2;
@@ -180,8 +176,22 @@ namespace hiqp_ros {
       // catch (HIQP Q_NR NOT AVAILABLE EXCEPTION)
     }
 
+    for (auto&& qnr : qnrs) {
+      std::string joint_name = hiqp::kdl_getJointNameFromQNr(robot_state_data_.kdl_tree_, qnr);
+      hiqp::JointHandleInfo jhi(qnr, joint_name, true, false);
+      robot_state_data_.joint_handle_info_.push_back(jhi);
+    }
+
+    std::cout << "Joint handle info:\n";
+    for (auto&& jhi : robot_state_data_.joint_handle_info_) {
+      std::cout << jhi.q_nr_ << ", " << jhi.joint_name_ << ", " << jhi.readable_ << ", " << jhi.writable_ << "\n";
+    }
+
     robot_state_data_.kdl_jnt_array_vel_.resize(n_joints_);
+    KDL::SetToZero(robot_state_data_.kdl_jnt_array_vel_.q);
+    KDL::SetToZero(robot_state_data_.kdl_jnt_array_vel_.qdot);
     robot_state_data_.kdl_effort_.resize(n_joints_);
+    KDL::SetToZero(robot_state_data_.kdl_effort_);
     u_ = Eigen::VectorXd::Zero(n_joints_);
 
     return 0;

@@ -28,13 +28,14 @@ find_package(catkin REQUIRED COMPONENTS roscpp
                                         controller_interface
                                         visualization_msgs
                                         kdl_parser
+                                        hiqp_collision_check
                                         hiqp_msgs)
 
 find_package(orocos_kdl REQUIRED)
 find_package(Eigen3 REQUIRED)
 #find_package(CASADI REQUIRED)
 
-catkin_package(CATKIN_DEPENDS roscpp controller_interface visualization_msgs kdl_parser hiqp_msgs
+catkin_package(CATKIN_DEPENDS roscpp controller_interface hiqp_collision_check visualization_msgs kdl_parser hiqp_msgs
                INCLUDE_DIRS include
                LIBRARIES ${PROJECT_NAME} #casadi
                DEPENDS orocos_kdl)

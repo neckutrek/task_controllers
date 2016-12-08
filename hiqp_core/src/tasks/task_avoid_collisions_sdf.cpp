@@ -78,10 +78,6 @@ std::shared_ptr<GeometricPrimitiveMap> gpm = this->getGeometricPrimitiveMap();
    }
   }
 
- e_.resize(n_dimensions_);
- e_.setZero();
- J_.resize(n_dimensions_, n_controls);
- J_.setZero();
  performance_measures_.resize(0);
  task_types_.insert(task_types_.begin(), n_dimensions_, -1); // -1 leq, 0 eq, 1 geq
 
@@ -97,8 +93,12 @@ std::shared_ptr<GeometricPrimitiveMap> gpm = this->getGeometricPrimitiveMap();
 }
 //==================================================================================
 int TaskAvoidCollisionsSDF::update(RobotStatePtr robot_state) {
-// const KDL::JntArray &q = robot_state->kdl_jnt_array_vel_.q;
-// e_(0) = desired_configuration_ - q(joint_q_nr_);
+
+
+ // e_.resize(n_dimensions_);
+ // e_.setZero();
+ // J_.resize(n_dimensions_, n_controls);
+ // J_.setZero();
 
   for(unsigned int i=0; i<primitives_.size();i++)
     {

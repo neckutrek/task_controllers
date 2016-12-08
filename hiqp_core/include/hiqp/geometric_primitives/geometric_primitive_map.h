@@ -51,7 +51,7 @@ namespace geometric_primitives
     int removeGeometricPrimitive(std::string name);
 
     int clear();
-
+    /// \todo add a non-templated version which gives back a pointer to the geometric_primitives::GeometricPrimitive base class to avoid the need to know the primitive type at compile-time 
     template<typename PrimitiveType>
     std::shared_ptr<PrimitiveType> getGeometricPrimitive(const std::string& name);
 

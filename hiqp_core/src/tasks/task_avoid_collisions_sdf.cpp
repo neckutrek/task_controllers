@@ -56,7 +56,8 @@ namespace hiqp
 		  printHiqpWarning("TaskAvoidCollisionsSDF::init, avoidance point '" + parameters.at(i) + "' is not attached to the manipulator! Initialization failed.");
 		  return -2; 
 		}
-	      point_list_.push_back(point);
+              primitives_.push_back(point);
+	      n_dimensions_++;
 	    }
 	  else if (gpm->getGeometricPrimitive<GeometricSphere>(parameters.at(i)) != nullptr)
 	    {
@@ -67,14 +68,14 @@ namespace hiqp
 		  printHiqpWarning("TaskAvoidCollisionsSDF::init, avoidance sphere '" + parameters.at(i) + "' is not attached to the manipulator! Initialization failed.");
 		  return -2; 
 		}
-	      sphere_list_.push_back(sphere);
+              primitives_.push_back(sphere);
+	      n_dimensions_++;
 	    }
 	  else
-	    {
+	    { 
 	      printHiqpWarning("TaskAvoidCollisionsSDF::init, couldn't find primitive '" + parameters.at(i) + "'! Initialization failed.");
 	      return -2; 
 	    }
-	  n_dimensions_++;
 	}
 
       e_.resize(n_dimensions_);
@@ -84,13 +85,30 @@ namespace hiqp
       performance_measures_.resize(0);
       task_types_.insert(task_types_.begin(), n_dimensions_, -1); // -1 leq, 0 eq, 1 geq
 
+      fk_solver_pos_ = std::make_shared<KDL::TreeFkSolverPos_recursive>(robot_state->kdl_tree_);
+      fk_solver_jac_ = std::make_shared<KDL::TreeJntToJacSolver>(robot_state->kdl_tree_);
+
+      root_frame_id_=robot_state->kdl_tree_.getRootSegment()->second.segment.getName();
       return 0;
     }
     //==================================================================================
     int TaskAvoidCollisionsSDF::update(RobotStatePtr robot_state) {
       // const KDL::JntArray &q = robot_state->kdl_jnt_array_vel_.q;
       // e_(0) = desired_configuration_ - q(joint_q_nr_);
-      std::cout<<"Updating TaskAvoidCollisionsSDF"<<std::endl;
+
+      for(unsigned int i=0; i<primitives_.size();i++)
+	{
+	  // compute forward kinematics for each primitive (yet unimplemented primitives such as capsules could have more than one ee_/J associated with them, hence the vector-valued argument
+	  std::vector<KinematicQuantities> kin_q_list;
+          if(primitiveForwardKinematics(kin_q_list, primitives_[i], robot_state) < 0)
+	    {
+	      printHiqpWarning("TaskAvoidCollisionsSDF::update, failed.");
+	      return -2;
+	    }
+
+
+
+        }
 
       return 0;
     }
@@ -102,11 +120,77 @@ namespace hiqp
     void TaskAvoidCollisionsSDF::reset() {
       n_dimensions_=0;
       task_types_.clear();
-      point_list_.clear();
-      sphere_list_.clear();
+      primitives_.clear();
+
     }
     //==================================================================================
+    int TaskAvoidCollisionsSDF::forwardKinematics(KinematicQuantities& kin_q, const KDL::JntArray& q)const
+    {
+      if(fk_solver_pos_->JntToCart(q, kin_q.ee_pose_, kin_q.frame_id_) < 0)
+	{
+	  printHiqpWarning("TaskAvoidCollisionsSDF::forwardKinematics, end-effector FK for link '" + kin_q.frame_id_ + "' failed.");
+	  return -2;
+	}
+      //std::cout<<"ee_pose: "<<std::endl<<kin_q.ee_pose_<<std::endl;
+      if(fk_solver_jac_->JntToJac(q, kin_q.ee_J_, kin_q.frame_id_) < 0)
+	{
+	  printHiqpWarning("TaskAvoidCollisionsSDF::forwardKinematics, Jacobian computation for link '" + kin_q.frame_id_ + "' failed.");
+	  return -2;
+	}
+      // std::cout<<"ee_J: "<<std::endl<<kin_q.ee_J_<<std::endl;
 
+
+      return 0;
+    }
+    //==================================================================================
+    int TaskAvoidCollisionsSDF::primitiveForwardKinematics(std::vector<KinematicQuantities>& kin_q_list, const std::shared_ptr<geometric_primitives::GeometricPrimitive>& primitive, RobotStatePtr robot_state )const
+    {
+
+      kin_q_list.clear();
+      std::string type=primitive->getType();
+
+      if(strcmp(type.c_str(),"point")==0)
+	{
+	  std::shared_ptr<GeometricPoint> point(std::static_pointer_cast<GeometricPoint>(primitive)); // downcast the primitive to the actual derived type
+	  KDL::Vector coord=point->getPointKDL();
+	  KinematicQuantities kin_q;
+          kin_q.ee_J_.resize(robot_state->kdl_jnt_array_vel_.q.rows());
+          kin_q.frame_id_=point->getFrameId();
+          if(forwardKinematics(kin_q,robot_state->kdl_jnt_array_vel_.q) < 0)
+	    {
+	      printHiqpWarning("TaskAvoidCollisionsSDF::primitiveForwardKinematics, primitive forward kinematics for GeometricPoint primitive '" + point->getName() + "' failed.");
+	      return -2;
+	    }  
+	  //shift the Jacobian reference point
+          kin_q.ee_J_.changeRefPoint(kin_q.ee_pose_.M*coord);
+
+          kin_q_list.push_back(kin_q);
+	}
+      else if(strcmp(type.c_str(),"sphere")==0)
+	{
+	  std::shared_ptr<GeometricSphere> sphere(std::static_pointer_cast<GeometricSphere>(primitive)); // downcast the primitive to the actual derived type
+	  KDL::Vector coord(sphere->getX(), sphere->getY(), sphere->getZ());
+	  KinematicQuantities kin_q;
+          kin_q.ee_J_.resize(robot_state->kdl_jnt_array_vel_.q.rows());
+          kin_q.frame_id_=sphere->getFrameId();
+	  if(forwardKinematics(kin_q,robot_state->kdl_jnt_array_vel_.q) < 0)
+	    {
+	      printHiqpWarning("TaskAvoidCollisionsSDF::primitiveForwardKinematics, primitive forward kinematics for GeometricSphere primitive '" + sphere->getName() + "' failed.");
+	      return -2;
+	    }   
+	  //shift the Jacobian reference point
+          kin_q.ee_J_.changeRefPoint(kin_q.ee_pose_.M*coord);
+
+          kin_q_list.push_back(kin_q);
+	}
+      else{
+	printHiqpWarning("TaskAvoidCollisionsSDF::forwardKinematics, FK for primitive type '" + type + "' not implemented yet.");
+	return -2;
+      }
+
+      return 0;
+    }
+    //==================================================================================
   } // namespace tasks
 
 } // namespace hiqp

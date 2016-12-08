@@ -29,6 +29,15 @@ namespace hiqp
 {
   namespace tasks
   {
+    /*! \brief A struct holding Jacobian and end-effector point - used for forward kinematics.
+     *  \author Robert Krug */  
+struct KinematicQuantities
+{
+  std::string frame_id_;
+  KDL::Jacobian ee_J_;
+  KDL::Frame ee_pose_;
+};
+//==============================================================================================
     /*! \brief A task definition that allows avoidance of geometric primitives on the manipulator with the environment given as a SDF map.
      *  \author Robert Krug */  
     class TaskAvoidCollisionsSDF : public TaskDefinition {
@@ -47,19 +56,23 @@ namespace hiqp
       int monitor();
 
     private:
+
       TaskAvoidCollisionsSDF(const TaskAvoidCollisionsSDF& other) = delete;
       TaskAvoidCollisionsSDF(TaskAvoidCollisionsSDF&& other) = delete;
       TaskAvoidCollisionsSDF& operator=(const TaskAvoidCollisionsSDF& other) = delete;
       TaskAvoidCollisionsSDF& operator=(TaskAvoidCollisionsSDF&& other) noexcept = delete;
 
       void reset();
+      /*! This function computes the kinematic quantities for a primitive and clears the kin_q vector before computing*/
+      int primitiveForwardKinematics(std::vector<KinematicQuantities>& kin_q_list, const std::shared_ptr<geometric_primitives::GeometricPrimitive>& primitive, RobotStatePtr robot_state)const;
+   /*! Helper function which computes ee pose and Jacobian w.r.t. a given frame*/
+      int forwardKinematics(KinematicQuantities& kin_q, const KDL::JntArray& q)const;
 
       std::shared_ptr<KDL::TreeFkSolverPos_recursive>  fk_solver_pos_;
       std::shared_ptr<KDL::TreeJntToJacSolver>         fk_solver_jac_;
 
-      std::vector<std::shared_ptr<GeometricPoint> >    point_list_;
-      std::vector<std::shared_ptr<GeometricSphere> >    sphere_list_;
-
+ std::vector<std::shared_ptr<geometric_primitives::GeometricPrimitive> >    primitives_;
+ std::string root_frame_id_;
     };
 
   } // namespace tasks

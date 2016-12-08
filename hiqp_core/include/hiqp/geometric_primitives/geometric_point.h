@@ -34,10 +34,11 @@ namespace geometric_primitives
   class GeometricPoint : public GeometricPrimitive {
   public:
     GeometricPoint(const std::string& name,
+                   const std::string& type,
                    const std::string& frame_id,
                    bool visible,
                    const std::vector<double>& color)
-    : GeometricPrimitive(name, frame_id, visible, color) {}
+      : GeometricPrimitive(name, type, frame_id, visible, color) {}
     
     ~GeometricPoint() noexcept {}
 

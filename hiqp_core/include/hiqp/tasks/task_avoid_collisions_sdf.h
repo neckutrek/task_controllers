@@ -22,41 +22,49 @@
 #include <hiqp/hiqp_time_point.h>
 #include <hiqp/task_definition.h>
 
+#include <kdl/treefksolverpos_recursive.hpp>
+#include <kdl/treejnttojacsolver.hpp>
+
 namespace hiqp
 {
-namespace tasks
-{
-
-  /*! \brief A task definition that avoids collisions between given geometric primitives on the manipulator and the environment represented by a SDF map.
-   *  \author Robert Krug */  
-  class TaskAvoidCollisionsSDF : public TaskDefinition {
-  public:
+  namespace tasks
+  {
+    /*! \brief A task definition that allows avoidance of geometric primitives on the manipulator with the environment given as a SDF map.
+     *  \author Robert Krug */  
+    class TaskAvoidCollisionsSDF : public TaskDefinition {
+    public:
     TaskAvoidCollisionsSDF(std::shared_ptr<GeometricPrimitiveMap> geom_prim_map,
-                  std::shared_ptr<Visualizer> visualizer)
-     : TaskDefinition(geom_prim_map, visualizer) {}
-    ~TaskAvoidCollisionsSDF() noexcept {}
+			   std::shared_ptr<Visualizer> visualizer)
+      : TaskDefinition(geom_prim_map, visualizer) {}
+      ~TaskAvoidCollisionsSDF() noexcept {}
 
-    int init(const std::vector<std::string>& parameters,
-             RobotStatePtr robot_state,
-             unsigned int n_controls);
+      int init(const std::vector<std::string>& parameters,
+	       RobotStatePtr robot_state,
+	       unsigned int n_controls);
 
-    int update(RobotStatePtr robot_state);
+      int update(RobotStatePtr robot_state);
 
-    int monitor();
+      int monitor();
 
-  private:
-    TaskAvoidCollisionsSDF(const TaskAvoidCollisionsSDF& other) = delete;
-    TaskAvoidCollisionsSDF(TaskAvoidCollisionsSDF&& other) = delete;
-    TaskAvoidCollisionsSDF& operator=(const TaskAvoidCollisionsSDF& other) = delete;
-    TaskAvoidCollisionsSDF& operator=(TaskAvoidCollisionsSDF&& other) noexcept = delete;
+    private:
+      TaskAvoidCollisionsSDF(const TaskAvoidCollisionsSDF& other) = delete;
+      TaskAvoidCollisionsSDF(TaskAvoidCollisionsSDF&& other) = delete;
+      TaskAvoidCollisionsSDF& operator=(const TaskAvoidCollisionsSDF& other) = delete;
+      TaskAvoidCollisionsSDF& operator=(TaskAvoidCollisionsSDF&& other) noexcept = delete;
 
-    std::string              link_name_;
-    int                      joint_q_nr_;
-    double                   desired_configuration_;
-  };
+      void reset();
 
-} // namespace tasks
+      std::shared_ptr<KDL::TreeFkSolverPos_recursive>  fk_solver_pos_;
+      std::shared_ptr<KDL::TreeJntToJacSolver>         fk_solver_jac_;
+
+      std::vector<std::shared_ptr<GeometricPoint> >    point_list_;
+      std::vector<std::shared_ptr<GeometricSphere> >    sphere_list_;
+
+    };
+
+  } // namespace tasks
 
 } // namespace hiqp
+
 
 #endif // include guard

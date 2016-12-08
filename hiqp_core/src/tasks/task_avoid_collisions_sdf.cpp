@@ -21,55 +21,92 @@
 
 namespace hiqp
 {
-namespace tasks
-{
+  namespace tasks
+  {
+    //==================================================================================
 
+    int TaskAvoidCollisionsSDF::init(const std::vector<std::string>& parameters,
+				     RobotStatePtr robot_state,
+				     unsigned int n_controls) {
+      //   std::cout<<"printing parameters:"<<std::endl;
+      //   for (int i=0; i<parameters.size();i++)
+      //     {
+      //       std::cout<<parameters.at(i)<<std::endl;
+      // }
+      int size = parameters.size();
+      if (size < 2) {
+	printHiqpWarning("TaskAvoidCollisionsSDF requires at least 2 parameters, got " 
+			 + std::to_string(size) + "! Initialization failed!");
+	return -2;
+      }
 
-int TaskAvoidCollisionsSDF::init(const std::vector<std::string>& parameters,
-                        RobotStatePtr robot_state,
-                        unsigned int n_controls) {
-  int size = parameters.size();
-  if (size != 3) {
-    printHiqpWarning("TaskAvoidCollisionsSDF requires 3 parameters, got " 
-      + std::to_string(size) + "! Initialization failed!");
-    return -1;
-  }
+      reset();
 
-  link_name_ = parameters.at(1);
+      //loop through all the geometric primitives intended for the obstacle avoidance and extract the pointers
+      std::shared_ptr<GeometricPrimitiveMap> gpm = this->getGeometricPrimitiveMap();
+      for (unsigned int i=1; i<size; i++)
+	{
+	  //make sure the primitive is either a point or a sphere - avoidance with other primitives is not currently implemented
+	  if (gpm->getGeometricPrimitive<GeometricPoint>(parameters.at(i)) != nullptr)
+	    {
+	      std::shared_ptr<GeometricPoint> point=gpm->getGeometricPrimitive<GeometricPoint>(parameters.at(i));
+	      //make sure the avoidance point is attached to the manipulator
+	      if(kdl_getQNrFromLinkName(robot_state->kdl_tree_, point->getFrameId()) == -1)
+		{
+		  printHiqpWarning("TaskAvoidCollisionsSDF::init, avoidance point '" + parameters.at(i) + "' is not attached to the manipulator! Initialization failed.");
+		  return -2; 
+		}
+	      point_list_.push_back(point);
+	    }
+	  else if (gpm->getGeometricPrimitive<GeometricSphere>(parameters.at(i)) != nullptr)
+	    {
+	      std::shared_ptr<GeometricSphere> sphere = gpm->getGeometricPrimitive<GeometricSphere>(parameters.at(i));
+	      //make sure the avoidance sphere is attached to the manipulator
+	      if(kdl_getQNrFromLinkName(robot_state->kdl_tree_, sphere->getFrameId()) == -1)
+		{
+		  printHiqpWarning("TaskAvoidCollisionsSDF::init, avoidance sphere '" + parameters.at(i) + "' is not attached to the manipulator! Initialization failed.");
+		  return -2; 
+		}
+	      sphere_list_.push_back(sphere);
+	    }
+	  else
+	    {
+	      printHiqpWarning("TaskAvoidCollisionsSDF::init, couldn't find primitive '" + parameters.at(i) + "'! Initialization failed.");
+	      return -2; 
+	    }
+	  n_dimensions_++;
+	}
 
-  joint_q_nr_ = kdl_getQNrFromLinkName(robot_state->kdl_tree_, link_name_);
+      e_.resize(n_dimensions_);
+      e_.setZero();
+      J_.resize(n_dimensions_, n_controls);
+      J_.setZero();
+      performance_measures_.resize(0);
+      task_types_.insert(task_types_.begin(), n_dimensions_, -1); // -1 leq, 0 eq, 1 geq
 
-  if (joint_q_nr_ < 0) {
-    printHiqpWarning("TaskAvoidCollisionsSDF::init, couldn't find joint '" + link_name_ + "'! Initialization failed.");
-    return -2;
-  }
+      return 0;
+    }
+    //==================================================================================
+    int TaskAvoidCollisionsSDF::update(RobotStatePtr robot_state) {
+      // const KDL::JntArray &q = robot_state->kdl_jnt_array_vel_.q;
+      // e_(0) = desired_configuration_ - q(joint_q_nr_);
+      std::cout<<"Updating TaskAvoidCollisionsSDF"<<std::endl;
 
-  desired_configuration_ = std::stod( parameters.at(2) );
+      return 0;
+    }
+    //==================================================================================
+    int TaskAvoidCollisionsSDF::monitor() {
+      return 0;
+    }
+    //==================================================================================
+    void TaskAvoidCollisionsSDF::reset() {
+      n_dimensions_=0;
+      task_types_.clear();
+      point_list_.clear();
+      sphere_list_.clear();
+    }
+    //==================================================================================
 
-  e_.resize(1);
-  J_.resize(1, n_controls);
-  performance_measures_.resize(0);
-  task_types_.insert(task_types_.begin(), 1, 0);
-
-  for (int i=0; i<n_controls; ++i) 
-    J_(0, i) = 0;
-
-  J_(0, joint_q_nr_) = -1;
-
-  return 0;
-}
-
-int TaskAvoidCollisionsSDF::update(RobotStatePtr robot_state) {
-  const KDL::JntArray &q = robot_state->kdl_jnt_array_vel_.q;
-  e_(0) = desired_configuration_ - q(joint_q_nr_);
-  return 0;
-}
-
-int TaskAvoidCollisionsSDF::monitor() {
-  return 0;
-}
-
-
-} // namespace tasks
+  } // namespace tasks
 
 } // namespace hiqp

@@ -75,9 +75,6 @@ namespace tasks
         j++;
       }
     }
-    // std::cout << "--- update ---\n";
-    // std::cout << "update e_ = " << e_ << "\n";
-
     return 0;
   }
 

@@ -41,7 +41,6 @@ catkin_package(CATKIN_DEPENDS roscpp controller_interface visualization_msgs hiq
                DEPENDS orocos_kdl)
 
 include_directories(include ${catkin_INCLUDE_DIRS})
-#include_directories(${CASADI_INCLUDE_DIR})
 include_directories(${GUROBI_INCLUDE_DIR})
 
 link_directories(${GUROBI_LIB_DIR})

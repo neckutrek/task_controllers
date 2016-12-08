@@ -9,9 +9,9 @@ Panels:
         - /RobotModel1/Links1
         - /RobotModel1/Links1/gripper_r_base1
         - /Tasks1
-        - /TF1/Status1
         - /TF1/Tree1
         - /MarkerArray1
+        - /MarkerArray2
       Splitter Ratio: 0.664207
     Tree Height: 755
   - Class: rviz/Selection
@@ -236,7 +236,15 @@ Visualization Manager:
       Marker Topic: /gplanner/sdf_marker
       Name: MarkerArray
       Namespaces:
-        my_namespace: true
+        {}
+      Queue Size: 100
+      Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /yumi/hiqp_joint_velocity_controller_collision/gradient_marker
+      Name: MarkerArray
+      Namespaces:
+        {}
       Queue Size: 100
       Value: true
   Enabled: true

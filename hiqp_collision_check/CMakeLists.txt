@@ -15,6 +15,9 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Boost REQUIRED COMPONENTS system thread)
 find_package(Eigen REQUIRED)
 
+## for debug FIXME!
+#find_package(VTK REQUIRED)
+
 
 ## Generate messages in the 'msg' folder
 add_message_files(
@@ -51,7 +54,7 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
-include_directories(${EIGEN_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS} include)
+include_directories(${EIGEN_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS}  ${VTK_INCLUDE_DIRS} include)
 add_definitions(${EIGEN_DEFINITIONS}) 
 
 ## Declare a C++ library
@@ -73,7 +76,7 @@ add_library(hiqp_collision_check
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(hiqp_collision_check
-  ${catkin_LIBRARIES} ${Boost_LIBRARIES}
+  ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${VTK_LIBRARIES}
 )
 
 #############

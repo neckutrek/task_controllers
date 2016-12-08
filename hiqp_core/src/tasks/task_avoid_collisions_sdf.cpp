@@ -26,8 +26,7 @@ namespace tasks
 //==================================================================================
 
 int TaskAvoidCollisionsSDF::init(const std::vector<std::string>& parameters,
-				   RobotStatePtr robot_state,
-				   unsigned int n_controls) {
+				   RobotStatePtr robot_state) {
 //   std::cout<<"printing parameters:"<<std::endl;
 //   for (int i=0; i<parameters.size();i++)
 //     {

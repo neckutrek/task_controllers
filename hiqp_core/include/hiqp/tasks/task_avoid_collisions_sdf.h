@@ -48,8 +48,7 @@ namespace hiqp
       ~TaskAvoidCollisionsSDF() noexcept {}
 
       int init(const std::vector<std::string>& parameters,
-	       RobotStatePtr robot_state,
-	       unsigned int n_controls);
+	       RobotStatePtr robot_state);
 
       int update(RobotStatePtr robot_state);
 

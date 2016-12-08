@@ -1,6 +1,15 @@
 #include <hiqp_collision_check/sdf_collision_checker.h>
 #include <Eigen/Geometry>
 
+#if 0
+#include <vtkImageData.h>
+#include <vtkFloatArray.h>
+#include <vtkXMLImageDataWriter.h>
+#include <vtkXMLImageDataReader.h>
+#include <vtkPointData.h>
+#include <vtkSmartPointer.h>
+#endif
+
 using namespace hiqp;
 
 SDFCollisionCheck::SDFCollisionCheck() {
@@ -84,6 +93,7 @@ void SDFCollisionCheck::mapCallback(const hiqp_collision_check::SDFMap::ConstPtr
     ZSize = msg->ZSize;
 
     *myGrid_ = buffer;
+    //SaveSDF("mymap.vti");
     data_mutex.unlock();
 
     ROS_INFO("Buffers switched");
@@ -104,7 +114,8 @@ void SDFCollisionCheck::mapCallback(const hiqp_collision_check::SDFMap::ConstPtr
 }
 
 bool SDFCollisionCheck::obstacleGradient (const Eigen::Vector3d &x, Eigen::Vector3d &g, std::string frame_id) {
-    g<<Dmax,Dmax,Dmax;
+    //g<<Dmax,Dmax,Dmax;
+    g = Eigen::Vector3d(1,1,1)*std::numeric_limits<double>::quiet_NaN();
     
     if(!this->isActive()) return false;
     if(!validMap) return false;
@@ -138,7 +149,7 @@ bool SDFCollisionCheck::obstacleGradient (const Eigen::Vector3d &x, Eigen::Vecto
 	g(1) = SDFGradient(x_new,1);
 	g(2) = SDFGradient(x_new,2);
 	g.normalize(); // normal vector
-	g = g*SDF(x_new);  // scale by interpolated SDF value
+	g = -g*SDF(x_new);  // scale by interpolated SDF value
     }
     data_mutex.unlock();
 
@@ -158,17 +169,37 @@ bool SDFCollisionCheck::obstacleGradientBulk (const CollisionCheckerBase::Sample
     if(!validMap) return false;
 
 
-    //TODO if a new frame_id, check on TF for a transformation to the correct frame and buffer
+    //if a new frame_id, check on TF for a transformation to the correct frame and buffer
+    if(frame_id != "") {
+	if(frame_id != request_frame_id) {
+	    //update transform
+	    tf::StampedTransform r2m;
+	    ros::Time now = ros::Time::now();
+	    try {
+		tl.waitForTransform(map_frame_id,request_frame_id, now, ros::Duration(0.15) );
+		tl.lookupTransform(map_frame_id,request_frame_id, now, r2m);
+	    } catch (tf::TransformException ex) {
+		ROS_ERROR("%s",ex.what());
+		return false;
+	    }
+	    tf::transformTFToEigen(r2m,request2map);
+	    request_frame_id = frame_id;
+	}
+    } else {
+	request2map.setIdentity();
+    }
     data_mutex.lock();
     for(int i=0; i<x.size(); ++i) {
-	//TODO transform x[i] to map frame
+	//transform x[i] to map frame
+	Eigen::Vector3d x_new;
+	x_new  = request2map*x[i];
 	
 	if(ValidGradient(x[i])) {
-	    g[i](0) = SDFGradient(x[i],0);
-	    g[i](1) = SDFGradient(x[i],1);
-	    g[i](2) = SDFGradient(x[i],2);
+	    g[i](0) = SDFGradient(x_new,0);
+	    g[i](1) = SDFGradient(x_new,1);
+	    g[i](2) = SDFGradient(x_new,2);
 	    g[i].normalize(); // normal vector
-	    g[i] = g[i]*SDF(x[i]);  // scale by interpolated SDF value
+	    g[i] = -g[i]*SDF(x_new);  // scale by interpolated SDF value
 	}
     }
     
@@ -274,3 +305,62 @@ double SDFCollisionCheck::SDFGradient(const Eigen::Vector3d &location, int dim) 
     return ((SDF(location+location_offset)) - (SDF(location-location_offset)))/(2.0*delta);
 
 }
+
+#if 0
+void SDFCollisionCheck::SaveSDF(const std::string &filename)
+{
+
+    // http://www.vtk.org/Wiki/VTK/Examples/Cxx/IO/WriteVTI
+
+    vtkSmartPointer<vtkImageData> sdf_volume = vtkSmartPointer<vtkImageData>::New();
+
+    sdf_volume->SetDimensions(XSize,YSize,ZSize);
+    sdf_volume->SetOrigin( resolution*XSize/2,
+	    resolution*YSize/2,
+	    resolution*ZSize/2);
+
+    float spc = resolution;
+    sdf_volume->SetSpacing(spc,spc,spc);
+
+    vtkSmartPointer<vtkFloatArray> distance = vtkSmartPointer<vtkFloatArray>::New();
+    vtkSmartPointer<vtkFloatArray> weight = vtkSmartPointer<vtkFloatArray>::New();
+
+    int numCells = ZSize * YSize * XSize;
+
+    distance->SetNumberOfTuples(numCells);
+    weight->SetNumberOfTuples(numCells);
+
+    int i, j, k, offset_k, offset_j;
+    for(k=0;k < ZSize; ++k)
+    {
+	offset_k = k*XSize*YSize;
+	for(j=0; j<YSize; ++j)
+	{
+	    offset_j = j*XSize;
+	    for(i=0; i<XSize; ++i)
+	    {
+
+		int offset = i + offset_j + offset_k;
+		distance->SetValue(offset, (*myGrid_)[i][j][k*2]);
+		weight->SetValue(offset, (*myGrid_)[i][j][k*2+1]);
+
+	    }
+	}
+    }
+    sdf_volume->GetPointData()->AddArray(distance);
+    distance->SetName("Distance");
+
+    sdf_volume->GetPointData()->AddArray(weight);
+    weight->SetName("Weight");
+
+    vtkSmartPointer<vtkXMLImageDataWriter> writer =
+	vtkSmartPointer<vtkXMLImageDataWriter>::New();
+    writer->SetFileName(filename.c_str());
+#if VTK_MAJOR_VERSION <= 5
+    writer->SetInput(sdf_volume);
+#else
+    writer->SetInputData(sdf_volume);
+#endif
+    writer->Write();
+}
+#endif

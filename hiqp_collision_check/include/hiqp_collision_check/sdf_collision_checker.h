@@ -53,6 +53,8 @@ namespace hiqp {
 	    /// Computes the gradient of the SDF at the location, along dimension dim, with central differences. 
 	    virtual double SDFGradient(const Eigen::Vector3d &location, int dim);
 
+	    //debug: save to vti
+	    //void SaveSDF(const std::string &filename);
 
 	public:
 	    virtual bool obstacleGradient (const Eigen::Vector3d &x, Eigen::Vector3d &g, std::string frame_id="");
@@ -60,10 +62,11 @@ namespace hiqp {
 	    virtual void init();
 	    /// is the gradient smaller than the truncation size?
 	    virtual bool isValid (const Eigen::Vector3d &grad) {
-		return (grad(0) > Dmin && grad(0) < Dmax &&
+		return (!std::isnan(grad(0)+grad(1)+grad(2))); 
+/*		return (grad(0) > Dmin && grad(0) < Dmax &&
 			grad(1) > Dmin && grad(1) < Dmax &&
 			grad(2) > Dmin && grad(2) < Dmax); 
-
+*/
 	    }
 	    SDFCollisionCheck();
 	    virtual ~SDFCollisionCheck();

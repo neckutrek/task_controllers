@@ -169,17 +169,37 @@ bool SDFCollisionCheck::obstacleGradientBulk (const CollisionCheckerBase::Sample
     if(!validMap) return false;
 
 
-    //TODO if a new frame_id, check on TF for a transformation to the correct frame and buffer
+    //if a new frame_id, check on TF for a transformation to the correct frame and buffer
+    if(frame_id != "") {
+	if(frame_id != request_frame_id) {
+	    //update transform
+	    tf::StampedTransform r2m;
+	    ros::Time now = ros::Time::now();
+	    try {
+		tl.waitForTransform(map_frame_id,request_frame_id, now, ros::Duration(0.15) );
+		tl.lookupTransform(map_frame_id,request_frame_id, now, r2m);
+	    } catch (tf::TransformException ex) {
+		ROS_ERROR("%s",ex.what());
+		return false;
+	    }
+	    tf::transformTFToEigen(r2m,request2map);
+	    request_frame_id = frame_id;
+	}
+    } else {
+	request2map.setIdentity();
+    }
     data_mutex.lock();
     for(int i=0; i<x.size(); ++i) {
-	//TODO transform x[i] to map frame
+	//transform x[i] to map frame
+	Eigen::Vector3d x_new;
+	x_new  = request2map*x[i];
 	
 	if(ValidGradient(x[i])) {
-	    g[i](0) = SDFGradient(x[i],0);
-	    g[i](1) = SDFGradient(x[i],1);
-	    g[i](2) = SDFGradient(x[i],2);
+	    g[i](0) = SDFGradient(x_new,0);
+	    g[i](1) = SDFGradient(x_new,1);
+	    g[i](2) = SDFGradient(x_new,2);
 	    g[i].normalize(); // normal vector
-	    g[i] = g[i]*SDF(x[i]);  // scale by interpolated SDF value
+	    g[i] = -g[i]*SDF(x_new);  // scale by interpolated SDF value
 	}
     }
     

@@ -78,7 +78,7 @@ namespace hiqp
 	}
 
       performance_measures_.resize(0);
-      task_types_.insert(task_types_.begin(), n_dimensions_, 0); // -1 leq, 0 eq, 1 geq
+      task_types_.insert(task_types_.begin(), n_dimensions_, -1); // -1 leq, 0 eq, 1 geq
 
       fk_solver_pos_ = std::make_shared<KDL::TreeFkSolverPos_recursive>(robot_state->kdl_tree_);
       fk_solver_jac_ = std::make_shared<KDL::TreeJntToJacSolver>(robot_state->kdl_tree_);
@@ -121,12 +121,15 @@ namespace hiqp
 	  SamplesVector gradients;
 	  if(!collision_checker_->obstacleGradientBulk(test_pts, gradients,root_frame_id_))
 	    {
-	      printHiqpWarning("TaskAvoidCollisionsSDF::update, collision checker failed.");
 	      //DEBUG HACK, JUST FOR TESTING IN ABSENCE OF A MAP!!!!!!!!!!!!!!
+	      //printHiqpWarning("TaskAvoidCollisionsSDF::update, collision checker failed.");
 	      //	  return -2;
 	      gradients.clear();
 	      Eigen::Vector3d p(kin_q_list[0].ee_pose_.p.x(),kin_q_list[0].ee_pose_.p.y(),kin_q_list[0].ee_pose_.p.z());
-	      gradients.push_back(Eigen::Vector3d(0.6, -0.3, 0.3)-p);
+	      Eigen::Vector3d gradient=Eigen::Vector3d(0.25, 0.0, 0.25)-p;
+	      gradients.push_back(Eigen::Vector3d(0.25, 0.0, 0.25)-p);
+	      // std::cerr<<"ee position: "<<p.transpose()<<std::endl;
+	      // std::cerr<<"gradient: "<<gradient.transpose()<<std::endl;
 	      //DEBUG HACK, END!!!!!!!!!!!!!!
 	    }
 	  assert(gradients.size() > 0); //make sure a gradient was found
@@ -146,26 +149,25 @@ namespace hiqp
       for(unsigned int i=0; i<gradients.size();i++)
 	{
 	  Eigen::Vector3d gradient(gradients[i]);
-         J_.conservativeResize(J_.rows()+1, Eigen::NoChange);
+	  J_.conservativeResize(J_.rows()+1, Eigen::NoChange);
 	  //to check if a gradient to an obstacle is valid
 	  if(collision_checker_->isValid(gradient))
 	    {
 	      //project the Jacobian onto the normalized gradient
 	      gradient.normalize();
 	      Eigen::MatrixXd ee_J_vel=kin_q_list[i].ee_J_.data.topRows<3>(); //velocity Jacobian
-	      // //DEBUG===============================
-	      // std::cerr<<"Velocity Jacobian: "<<std::endl<<ee_J_vel<<std::endl;
-	      // std::cerr<<"Normalized gradient transpose: "<<std::endl<<gradient.transpose()<<std::endl;
-	      // std::cerr<<"Task Jacobian before insertion: "<<std::endl<<J_<<std::endl;
-	      // std::cerr<<"Task Jacobian: "<<std::endl<<gradient.transpose()*ee_J_vel<<std::endl;
-	      // //DEBUG END===============================
-
+	      //DEBUG===============================
+	      //std::cerr<<"Velocity Jacobian: "<<std::endl<<ee_J_vel<<std::endl;
+              //std::cerr<<"Normalized gradient transpose: "<<std::endl<<gradient.transpose()<<std::endl;
+	      //DEBUG END===============================
 	      J_.row(J_.rows()-1)=gradient.transpose()*ee_J_vel;
             }
           else
-	      J_.row(J_.rows()-1).setZero();  //insert a zero-row
-              
+	    J_.row(J_.rows()-1).setZero();  //insert a zero-row
 	}
+      //DEBUG===============================
+      //std::cerr<<"Task Jacobian: "<<std::endl<<J_<<std::endl;
+      //DEBUG END===============================
     }
     //==================================================================================
     void TaskAvoidCollisionsSDF::appendTaskFunction(const std::string& primitive_type, const std::vector<KinematicQuantities> kin_q_list, const SamplesVector& gradients)
@@ -174,13 +176,16 @@ namespace hiqp
       for(unsigned int i=0; i<gradients.size();i++)
 	{
 	  Eigen::Vector3d gradient(gradients[i]);
-	      e_.conservativeResize(e_.size()+1);          
+	  e_.conservativeResize(e_.size()+1);          
 	  //to check if a gradient to an obstacle is valid
 	  if(collision_checker_->isValid(gradient))
-              e_(e_.size()-1) = gradient.norm();  //append the gradient length to the task function vector
+	    e_(e_.size()-1) = -gradient.norm();  //append the gradient length to the task function vector
 	  else
 	    e_(e_.size()-1) = 0.0; //insert zero
 	}
+      //DEBUG===============================
+      //std::cerr<<"Task function value vector: "<<e_.transpose()<<std::endl;
+      //DEBUG END===============================
     }
     //==================================================================================
     int TaskAvoidCollisionsSDF::monitor() {

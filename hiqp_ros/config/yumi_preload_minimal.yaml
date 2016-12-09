@@ -1,0 +1,20 @@
+yumi:
+  hiqp_joint_velocity_controller:
+    #####      JOINT LIMITATIONS    #####
+     hiqp_preload_jnt_limits:
+      - link_frame: yumi_link_1_r
+        limitations: [1.4835, -2.94, 2.94] #dq_max, lower joint limit, upper joint limit
+      - link_frame: yumi_link_2_r
+        limitations: [1.4835, -2.5, 0.75] 
+      - link_frame: yumi_link_3_r
+        limitations: [1.7453, -2.94, 2.94]
+      - link_frame: yumi_link_4_r
+        limitations: [1.3090, -2.16, 1.4]
+      - link_frame: yumi_link_5_r
+        limitations: [2.2689, -5.07, 5.07] 
+      - link_frame: yumi_link_6_r
+        limitations: [2.2689, -1.54, 2.41]
+      - link_frame: yumi_link_7_r
+        limitations: [2.2689, -4.0, 4.0] 
+
+   

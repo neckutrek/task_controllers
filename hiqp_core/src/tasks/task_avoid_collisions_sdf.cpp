@@ -125,7 +125,8 @@ namespace hiqp
 	      //DEBUG HACK, JUST FOR TESTING IN ABSENCE OF A MAP!!!!!!!!!!!!!!
 	      //	  return -2;
 	      gradients.clear();
-	      gradients.push_back(Eigen::Vector3d(0.6, -0.3, 0.3));
+	      Eigen::Vector3d p(kin_q_list[0].ee_pose_.p.x(),kin_q_list[0].ee_pose_.p.y(),kin_q_list[0].ee_pose_.p.z());
+	      gradients.push_back(Eigen::Vector3d(0.6, -0.3, 0.3)-p);
 	      //DEBUG HACK, END!!!!!!!!!!!!!!
 	    }
 	  assert(gradients.size() > 0); //make sure a gradient was found

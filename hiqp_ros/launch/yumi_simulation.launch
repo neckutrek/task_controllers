@@ -19,7 +19,7 @@
   <arg name="use_sim_time" default="true"/>
   <arg name="gui" default="false"/>
   <arg name="headless" default="false"/>
-  <arg name="debug" default="true"/>
+  <arg name="debug" default="false"/>
 
   <arg unless="$(arg debug)" name="launch_prefix" value="" />
   <arg if="$(arg debug)" name="launch_prefix" value="gdb --ex run --args" />

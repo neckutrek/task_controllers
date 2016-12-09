@@ -65,9 +65,9 @@ namespace hiqp
 
       void reset();
       /*! This function computes the kinematic quantities for a primitive and clears the kin_q vector before computing*/
-      int primitiveForwardKinematics(std::vector<KinematicQuantities>& kin_q_list, const std::shared_ptr<geometric_primitives::GeometricPrimitive>& primitive, RobotStatePtr robot_state)const;
+      int primitiveForwardKinematics(std::vector<KinematicQuantities>& kin_q_list, const std::shared_ptr<geometric_primitives::GeometricPrimitive>& primitive, RobotStatePtr const robot_state)const;
       /*! Helper function which computes ee pose and Jacobian w.r.t. a given frame*/
-      int forwardKinematics(KinematicQuantities& kin_q, const KDL::JntArray& q)const;
+      int forwardKinematics(KinematicQuantities& kin_q, RobotStatePtr const robot_state)const;
 
       void appendTaskJacobian(const std::vector<KinematicQuantities> kin_q_list ,const SamplesVector& gradients );
       void appendTaskFunction(const std::string& primitive_type, const std::vector<KinematicQuantities> kin_q_list, const SamplesVector& gradients);

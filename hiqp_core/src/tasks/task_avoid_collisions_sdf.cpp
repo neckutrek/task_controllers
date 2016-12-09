@@ -78,7 +78,7 @@ namespace hiqp
 	}
 
       performance_measures_.resize(0);
-      task_types_.insert(task_types_.begin(), n_dimensions_, -1); // -1 leq, 0 eq, 1 geq
+      task_types_.insert(task_types_.begin(), n_dimensions_, 0); // -1 leq, 0 eq, 1 geq
 
       fk_solver_pos_ = std::make_shared<KDL::TreeFkSolverPos_recursive>(robot_state->kdl_tree_);
       fk_solver_jac_ = std::make_shared<KDL::TreeJntToJacSolver>(robot_state->kdl_tree_);
@@ -117,6 +117,7 @@ namespace hiqp
 	      test_pts.push_back(p);
 	    }
 
+
 	  SamplesVector gradients;
 	  if(!collision_checker_->obstacleGradientBulk(test_pts, gradients,root_frame_id_))
 	    {
@@ -127,17 +128,12 @@ namespace hiqp
 	      gradients.push_back(Eigen::Vector3d(0.6, -0.3, 0.3));
 	      //DEBUG HACK, END!!!!!!!!!!!!!!
 	    }
-
+	  assert(gradients.size() > 0); //make sure a gradient was found
 
 	  //compute the task jacobian for the current geometric primitive
 	  appendTaskJacobian(kin_q_list, gradients);
 	  //compute the task function value vector for the current geometric primitive
 	  appendTaskFunction(primitives_[i]->getType(),kin_q_list, gradients);
-
-	  //TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	  //* mask uncontrolled joints in the task jacobian
-	  //* J_,e_ could be legitimately empty now - check what happens!
-
 	}
 
       return 0;
@@ -149,15 +145,25 @@ namespace hiqp
       for(unsigned int i=0; i<gradients.size();i++)
 	{
 	  Eigen::Vector3d gradient(gradients[i]);
-          
+         J_.conservativeResize(J_.rows()+1, Eigen::NoChange);
 	  //to check if a gradient to an obstacle is valid
 	  if(collision_checker_->isValid(gradient))
 	    {
 	      //project the Jacobian onto the normalized gradient
 	      gradient.normalize();
-	      J_.conservativeResize(J_.rows()+1, Eigen::NoChange);
-	      J_.row(J_.rows()-1)= gradient.transpose()*kin_q_list[i].ee_J_.data.transpose();
+	      Eigen::MatrixXd ee_J_vel=kin_q_list[i].ee_J_.data.topRows<3>(); //velocity Jacobian
+	      // //DEBUG===============================
+	      // std::cerr<<"Velocity Jacobian: "<<std::endl<<ee_J_vel<<std::endl;
+	      // std::cerr<<"Normalized gradient transpose: "<<std::endl<<gradient.transpose()<<std::endl;
+	      // std::cerr<<"Task Jacobian before insertion: "<<std::endl<<J_<<std::endl;
+	      // std::cerr<<"Task Jacobian: "<<std::endl<<gradient.transpose()*ee_J_vel<<std::endl;
+	      // //DEBUG END===============================
+
+	      J_.row(J_.rows()-1)=gradient.transpose()*ee_J_vel;
             }
+          else
+	      J_.row(J_.rows()-1).setZero();  //insert a zero-row
+              
 	}
     }
     //==================================================================================
@@ -167,14 +173,12 @@ namespace hiqp
       for(unsigned int i=0; i<gradients.size();i++)
 	{
 	  Eigen::Vector3d gradient(gradients[i]);
-          
+	      e_.conservativeResize(e_.size()+1);          
 	  //to check if a gradient to an obstacle is valid
 	  if(collision_checker_->isValid(gradient))
-	    {
-	      //append the gradient length to the task function vector
-	      e_.conservativeResize(e_.size()+1);
-              e_(e_.size()-1) = gradient.norm();
-            }
+              e_(e_.size()-1) = gradient.norm();  //append the gradient length to the task function vector
+	  else
+	    e_(e_.size()-1) = 0.0; //insert zero
 	}
     }
     //==================================================================================
@@ -188,26 +192,30 @@ namespace hiqp
       primitives_.clear();
     }
     //==================================================================================
-    int TaskAvoidCollisionsSDF::forwardKinematics(KinematicQuantities& kin_q, const KDL::JntArray& q)const
+    int TaskAvoidCollisionsSDF::forwardKinematics(KinematicQuantities& kin_q, RobotStatePtr const robot_state)const
     {
-      if(fk_solver_pos_->JntToCart(q, kin_q.ee_pose_, kin_q.frame_id_) < 0)
+      if(fk_solver_pos_->JntToCart(robot_state->kdl_jnt_array_vel_.q, kin_q.ee_pose_, kin_q.frame_id_) < 0)
 	{
 	  printHiqpWarning("TaskAvoidCollisionsSDF::forwardKinematics, end-effector FK for link '" + kin_q.frame_id_ + "' failed.");
 	  return -2;
 	}
       //std::cout<<"ee_pose: "<<std::endl<<kin_q.ee_pose_<<std::endl;
-      if(fk_solver_jac_->JntToJac(q, kin_q.ee_J_, kin_q.frame_id_) < 0)
+      if(fk_solver_jac_->JntToJac(robot_state->kdl_jnt_array_vel_.q, kin_q.ee_J_, kin_q.frame_id_) < 0)
 	{
 	  printHiqpWarning("TaskAvoidCollisionsSDF::forwardKinematics, Jacobian computation for link '" + kin_q.frame_id_ + "' failed.");
 	  return -2;
 	}
       // std::cout<<"ee_J: "<<std::endl<<kin_q.ee_J_<<std::endl;
 
+      //Not necesserily all joints between the end-effector and base are controlled, therefore the columns in the jacobian corresponding to these joints must be masked to zero to avoid unwanted contributions
+      for(unsigned int i=0; i<robot_state->getNumJoints(); i++)
+	if (!robot_state->isQNrWritable(i)) 
+	  kin_q.ee_J_.setColumn(i,KDL::Twist::Zero());
 
       return 0;
     }
     //==================================================================================
-    int TaskAvoidCollisionsSDF::primitiveForwardKinematics(std::vector<KinematicQuantities>& kin_q_list, const std::shared_ptr<geometric_primitives::GeometricPrimitive>& primitive, RobotStatePtr robot_state )const
+    int TaskAvoidCollisionsSDF::primitiveForwardKinematics(std::vector<KinematicQuantities>& kin_q_list, const std::shared_ptr<geometric_primitives::GeometricPrimitive>& primitive, RobotStatePtr const robot_state )const
     {
 
       kin_q_list.clear();
@@ -218,9 +226,9 @@ namespace hiqp
 	  std::shared_ptr<GeometricPoint> point(std::static_pointer_cast<GeometricPoint>(primitive)); // downcast the primitive to the actual derived type
 	  KDL::Vector coord=point->getPointKDL();
 	  KinematicQuantities kin_q;
-	  kin_q.ee_J_.resize(robot_state->kdl_jnt_array_vel_.q.rows());
+	  kin_q.ee_J_.resize(robot_state->getNumJoints());
 	  kin_q.frame_id_=point->getFrameId();
-	  if(forwardKinematics(kin_q,robot_state->kdl_jnt_array_vel_.q) < 0)
+	  if(forwardKinematics(kin_q,robot_state) < 0)
 	    {
 	      printHiqpWarning("TaskAvoidCollisionsSDF::primitiveForwardKinematics, primitive forward kinematics for GeometricPoint primitive '" + point->getName() + "' failed.");
 	      return -2;
@@ -237,7 +245,7 @@ namespace hiqp
 	  KinematicQuantities kin_q;
 	  kin_q.ee_J_.resize(robot_state->kdl_jnt_array_vel_.q.rows());
 	  kin_q.frame_id_=sphere->getFrameId();
-	  if(forwardKinematics(kin_q,robot_state->kdl_jnt_array_vel_.q) < 0)
+	  if(forwardKinematics(kin_q,robot_state) < 0)
 	    {
 	      printHiqpWarning("TaskAvoidCollisionsSDF::primitiveForwardKinematics, primitive forward kinematics for GeometricSphere primitive '" + sphere->getName() + "' failed.");
 	      return -2;

@@ -60,7 +60,6 @@ bool TaskManager::getVelocityControls(RobotStatePtr robot_state,
                            kv.second->getTaskTypes());
     }
   }
-
   if (!solver_->solve(controls)) {
     printHiqpWarning("Unable to solve the hierarchical QP, setting the velocity controls to zero!");
     for (int i=0; i<controls.size(); ++i)

@@ -104,7 +104,7 @@ namespace hiqp
 	  std::vector<KinematicQuantities> kin_q_list;
 	  if(primitiveForwardKinematics(kin_q_list, primitives_[i], robot_state) < 0)
 	    {
-	      printHiqpWarning("TaskAvoidCollisionsSDF::update, failed.");
+	      printHiqpWarning("TaskAvoidCollisionsSDF::update, primitive forward kinematics computation failed.");
 	      return -2;
 	    }
 
@@ -117,21 +117,35 @@ namespace hiqp
 	      test_pts.push_back(p);
 	    }
 
+	  std::cerr<<"Testing collision checker with root frame: "<<root_frame_id_<<std::endl;
+	  std::cerr<<"Test points: "<<std::endl;
+	  for (int k=0; k<test_pts.size();k++)
+	    std::cerr<<test_pts[k].transpose()<<" ";
+	  std::cerr<<std::endl;
 
 	  SamplesVector gradients;
+	  Eigen::Vector3d gradient;
+          gradient.setZero();
 	  if(!collision_checker_->obstacleGradientBulk(test_pts, gradients,root_frame_id_))
+	  //  if(collision_checker_->obstacleGradient(test_pts[0],gradient))
 	    {
+	      printHiqpWarning("TaskAvoidCollisionsSDF::update, collision checker failed.");
+	      return -2;
 	      //DEBUG HACK, JUST FOR TESTING IN ABSENCE OF A MAP!!!!!!!!!!!!!!
-	      //printHiqpWarning("TaskAvoidCollisionsSDF::update, collision checker failed.");
-	      //	  return -2;
-	      gradients.clear();
-	      Eigen::Vector3d p(kin_q_list[0].ee_pose_.p.x(),kin_q_list[0].ee_pose_.p.y(),kin_q_list[0].ee_pose_.p.z());
-	      Eigen::Vector3d gradient=Eigen::Vector3d(0.25, 0.0, 0.25)-p;
-	      gradients.push_back(Eigen::Vector3d(0.25, 0.0, 0.25)-p);
+	      // gradients.clear();
+	      // Eigen::Vector3d p(kin_q_list[0].ee_pose_.p.x(),kin_q_list[0].ee_pose_.p.y(),kin_q_list[0].ee_pose_.p.z());
+	      // Eigen::Vector3d gradient=Eigen::Vector3d(0.25, 0.0, 0.25)-p;
+	      // gradients.push_back(Eigen::Vector3d(0.25, 0.0, 0.25)-p);
 	      // std::cerr<<"ee position: "<<p.transpose()<<std::endl;
 	      // std::cerr<<"gradient: "<<gradient.transpose()<<std::endl;
 	      //DEBUG HACK, END!!!!!!!!!!!!!!
 	    }
+	    // std::cerr<<"computed gradient: "<<gradient.transpose();
+	    std::cerr<<"computed gradients: "<<std::endl;
+	    for(int k=0; k<gradients.size();k++)
+	      std::cerr<<gradients[k].transpose()<<std::endl;
+	    std::cerr<<std::endl;
+
 	  assert(gradients.size() > 0); //make sure a gradient was found
 
 	  //compute the task jacobian for the current geometric primitive

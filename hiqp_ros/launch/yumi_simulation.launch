@@ -44,7 +44,7 @@
 
 
   <rosparam file="$(find hiqp_ros)/config/yumi.yaml" command="load"/>
-  <rosparam file="$(find hiqp_ros)/config/yumi_preload_minimal.yaml" command="load"/>
+  <!--rosparam file="$(find hiqp_ros)/config/yumi_preload_minimal.yaml" command="load"/-->
 
   <node name="controller_spawner" 
         pkg="controller_manager" 

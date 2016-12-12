@@ -59,7 +59,12 @@ namespace hiqp
       unsigned int s_count = 0; // stage counter
 
       for (it; it!=stages_map_.end(); ++it) {
-        //ROS_ASSERT(it->second.J_.cols() == x_dim); //make sure the stage jacobian column dimensions are consistent
+	//DEBUG ================================================
+	// std::cerr<<"Stage priority: "<<it->first<<std::endl;
+	// std::cerr<<"Stage Jacobian: "<<std::endl<<it->second.J_<<std::endl;
+	// std::cerr<<"Stage de*: "<<std::endl<<it->second.e_dot_star_.transpose()<<std::endl;
+	//DEBUG END ================================================
+
         assert(it->second.J_.cols() == x_dim);
         s_count++;
         GRBModel model(env_);
@@ -67,7 +72,6 @@ namespace hiqp
         unsigned int s_acc_dim = b_.rows(); //accumulated dimensions of all the previously solved stages
 
         // append the new signs, jacobian matrix and task velocity vector to the previous ones
-        //ROS_ASSERT(it->second.constraint_signs_.size()==s_dim);
         assert(it->second.constraint_signs_.size()==s_dim);
         for(unsigned int i = 0; i<s_dim; i++) {
           if (it->second.constraint_signs_.at(i)== 0)

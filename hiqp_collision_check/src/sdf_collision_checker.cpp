@@ -17,7 +17,6 @@ SDFCollisionCheck::SDFCollisionCheck() {
    n_ = ros::NodeHandle();
 
    nh_.param<std::string>("sdf_map_topic",sdf_map_topic,"sdf_map");
-
    myGrid_ = new float***;
    validMap = false;
    ROS_INFO("Constructor done");

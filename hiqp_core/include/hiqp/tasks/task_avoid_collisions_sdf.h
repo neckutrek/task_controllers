@@ -21,7 +21,7 @@
 
 #include <hiqp/hiqp_time_point.h>
 #include <hiqp/task_definition.h>
-
+#include <hiqp_collision_check/checker_base.h>
 #include <kdl/treefksolverpos_recursive.hpp>
 #include <kdl/treejnttojacsolver.hpp>
 
@@ -29,6 +29,17 @@ namespace hiqp
 {
   namespace tasks
   {
+      typedef std::vector<Eigen::Vector3d,Eigen::aligned_allocator<Eigen::Vector3d> > SamplesVector;
+
+    /*! \brief A struct holding Jacobian and end-effector point - used for forward kinematics.
+     *  \author Robert Krug */  
+    struct KinematicQuantities
+    {
+      std::string frame_id_;
+      KDL::Jacobian ee_J_;
+      KDL::Frame ee_pose_;
+    };
+    //==============================================================================================
     /*! \brief A task definition that allows avoidance of geometric primitives on the manipulator with the environment given as a SDF map.
      *  \author Robert Krug */  
     class TaskAvoidCollisionsSDF : public TaskDefinition {
@@ -39,27 +50,35 @@ namespace hiqp
       ~TaskAvoidCollisionsSDF() noexcept {}
 
       int init(const std::vector<std::string>& parameters,
-	       RobotStatePtr robot_state,
-	       unsigned int n_controls);
+	       RobotStatePtr robot_state);
 
       int update(RobotStatePtr robot_state);
 
       int monitor();
 
     private:
+
       TaskAvoidCollisionsSDF(const TaskAvoidCollisionsSDF& other) = delete;
       TaskAvoidCollisionsSDF(TaskAvoidCollisionsSDF&& other) = delete;
       TaskAvoidCollisionsSDF& operator=(const TaskAvoidCollisionsSDF& other) = delete;
       TaskAvoidCollisionsSDF& operator=(TaskAvoidCollisionsSDF&& other) noexcept = delete;
 
       void reset();
+      /*! This function computes the kinematic quantities for a primitive and clears the kin_q vector before computing*/
+      int primitiveForwardKinematics(std::vector<KinematicQuantities>& kin_q_list, const std::shared_ptr<geometric_primitives::GeometricPrimitive>& primitive, RobotStatePtr const robot_state)const;
+      /*! Helper function which computes ee pose and Jacobian w.r.t. a given frame*/
+      int forwardKinematics(KinematicQuantities& kin_q, RobotStatePtr const robot_state)const;
+
+      void appendTaskJacobian(const std::vector<KinematicQuantities> kin_q_list ,const SamplesVector& gradients );
+      void appendTaskFunction(const std::string& primitive_type, const std::vector<KinematicQuantities> kin_q_list, const SamplesVector& gradients);
 
       std::shared_ptr<KDL::TreeFkSolverPos_recursive>  fk_solver_pos_;
       std::shared_ptr<KDL::TreeJntToJacSolver>         fk_solver_jac_;
 
-      std::vector<std::shared_ptr<GeometricPoint> >    point_list_;
-      std::vector<std::shared_ptr<GeometricSphere> >    sphere_list_;
-
+      std::vector<std::shared_ptr<geometric_primitives::GeometricPrimitive> >    primitives_;
+      std::string root_frame_id_;
+      /*! Interface to the SDF map*/
+      std::shared_ptr<hiqp::CollisionCheckerBase> collision_checker_;
     };
 
   } // namespace tasks

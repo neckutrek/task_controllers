@@ -36,13 +36,20 @@ TaskGeometricProjection<PrimitiveA, PrimitiveB>::TaskGeometricProjection(
 
 template<typename PrimitiveA, typename PrimitiveB>
 int TaskGeometricProjection<PrimitiveA, PrimitiveB>::init(const std::vector<std::string>& parameters,
-                                                          RobotStatePtr robot_state,
-                                                          unsigned int n_controls) {
+                                                          RobotStatePtr robot_state) {
   int parameters_size = parameters.size();
-  if (parameters_size != 4) {
-    printHiqpWarning("'" + getTaskName() + "': TDefGeomProj takes 4 parameters, got " + std::to_string(parameters_size) + "! The task was not added!");
+  if (!(parameters_size == 4 || parameters_size == 5)) {
+    printHiqpWarning("'" + getTaskName() + "': TDefGeomProj takes either 4 or 5 parameters, got " + std::to_string(parameters_size) + "! The task was not added!");
     return -1;
   }
+
+  if(parameters_size==5)
+    {
+     d_i_=std::stod(parameters[4]);
+     assert(d_i_>=0.0);
+    }
+   else
+     d_i_=std::numeric_limits<double>::infinity();
 
   std::stringstream ss(parameters.at(3));
   std::vector<std::string> args(
@@ -54,8 +61,9 @@ int TaskGeometricProjection<PrimitiveA, PrimitiveB>::init(const std::vector<std:
     return -2;
   }
 
+  unsigned int n_joints = robot_state->getNumJoints();
   e_.resize(1);
-  J_.resize(1, n_controls);
+  J_.resize(1, n_joints);
   performance_measures_.resize(0);
 
   fk_solver_pos_ = std::make_shared<KDL::TreeFkSolverPos_recursive>(robot_state->kdl_tree_);

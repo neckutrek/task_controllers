@@ -35,8 +35,7 @@ namespace tasks
 
   template<typename PrimitiveA, typename PrimitiveB>
   int TaskGeometricAlignment<PrimitiveA, PrimitiveB>::init(const std::vector<std::string>& parameters,
-                                                           RobotStatePtr robot_state,
-                                                           unsigned int n_controls) {
+                                                           RobotStatePtr robot_state) {
     int parameters_size = parameters.size();
     if (parameters_size != 5) {
       printHiqpWarning("'" + getTaskName() + "': TDefGeomAlign takes 5 parameters, got " + std::to_string(parameters_size) + "! The task was not added!");
@@ -61,8 +60,9 @@ namespace tasks
       n_task_dimensions = 2;
     }
     
+    unsigned int n_joints = robot_state->getNumJoints();
     e_.resize(n_task_dimensions);
-    J_.resize(n_task_dimensions, n_controls);
+    J_.resize(n_task_dimensions, n_joints);
     performance_measures_.resize(0);
 
     fk_solver_pos_ = std::make_shared<KDL::TreeFkSolverPos_recursive>(robot_state->kdl_tree_);

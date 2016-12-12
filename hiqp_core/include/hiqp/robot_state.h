@@ -24,13 +24,48 @@
 
 namespace hiqp {
 
+  /*! \brief Holds information on what q_nr (KDL) is associated with what joint name, and whether that joint's resource is readable/writable.
+   *  \author Marcus A Johansson */
+  struct JointHandleInfo {
+    JointHandleInfo(unsigned int q_nr, const std::string& joint_name, bool readable, bool writable) 
+     : q_nr_(q_nr), joint_name_(joint_name), readable_(readable), writable_(writable) {}
+    unsigned int   q_nr_;
+    std::string    joint_name_;
+    bool           readable_;
+    bool           writable_;
+  };
+
   /*! \brief Holds the state of the robot (sampling time, kdl tree, joint positions and velocities) 
    *  \author Marcus A Johansson */
   struct RobotState {
-    HiQPTimePoint     sampling_time_;
-    KDL::Tree         kdl_tree_;
-    KDL::JntArrayVel  kdl_jnt_array_vel_;
-    KDL::JntArray     kdl_effort_;
+    HiQPTimePoint                 sampling_time_;
+    KDL::Tree                     kdl_tree_;
+    KDL::JntArrayVel              kdl_jnt_array_vel_;
+    KDL::JntArray                 kdl_effort_;
+    std::vector<JointHandleInfo>  joint_handle_info_;
+
+    /// \brief Returns whether the joint with qnr is writable or not
+    inline bool isQNrWritable(unsigned int qnr) const {
+      for (auto&& jhi : joint_handle_info_) {
+        if (jhi.q_nr_ == qnr) 
+          return jhi.writable_;
+      }
+      return false;
+    }
+
+    /// \brief Returns the total number of joints (including read-only joint resources)
+    inline unsigned int getNumJoints() const {
+      return kdl_tree_.getNrOfJoints();
+    }
+
+    /// \brief Returns the number of controllable joints (writable joint resources)
+    inline unsigned int getNumControls() const {
+      unsigned int n = 0;
+      for (auto&& jhi : joint_handle_info_) {
+        if (jhi.writable_) n++;
+      }
+      return n;
+    }
   };
 
   /*! \brief A const pointer type to a robot state. Used to reference to the current robot state throught the framework.

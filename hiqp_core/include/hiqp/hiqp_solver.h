@@ -20,7 +20,7 @@
 #include <map>
 #include <vector>
 #include <iostream>
-
+#include <iomanip>
 #include <Eigen/Dense>
 
 namespace hiqp
@@ -63,8 +63,27 @@ namespace hiqp
         stage.constraint_signs_ = constraint_signs;
         stage.nRows = e_dot_star.rows();
         stages_map_.emplace(priority_level, stage);
+       // DEBUG =============================================
+        /* std::cerr<<std::setprecision(2)<<"append new stage: "<<std::endl; */
+        /* std::cerr<<"J_t: "<<std::endl<<stage.J_<<std::endl; */
+        /* std::cerr<<"signs: "; */
+        /* for (unsigned int k=0;k<stage.constraint_signs_.size();k++) */
+        /*   std::cerr<<stage.constraint_signs_[k]<<" "; */
+
+        /* std::cerr<<std::endl<<"de*: "<<stage.e_dot_star_.transpose()<<std::endl; */      
+ 	// DEBUG END ==========================================
       } else {
         int rows = it->second.e_dot_star_.rows() + e_dot_star.rows();
+        // DEBUG =============================================
+        /* std::cerr<<std::setprecision(2)<<"HiQPSolver::appendStage - before appending existing stage: "<<std::endl; */
+        /* std::cerr<<"J_t: "<<std::endl<<it->second.J_<<std::endl; */
+        /* std::cerr<<"signs: "; */
+        /* for (unsigned int k=0;k<it->second.constraint_signs_.size();k++) */
+        /*  std::cerr<<it->second.constraint_signs_[k]<<" "; */
+
+        /* std::cerr<<std::endl<<"de*: "<<it->second.e_dot_star_.transpose()<<std::endl;  */
+	// DEBUG END ==========================================
+
         Eigen::VectorXd edotstar__(rows);
         edotstar__ << it->second.e_dot_star_, e_dot_star;
         it->second.e_dot_star_.resize(rows);
@@ -72,10 +91,19 @@ namespace hiqp
         Eigen::MatrixXd J__(rows, it->second.J_.cols());
         J__ << it->second.J_, J;
         it->second.J_ = J__;
-        it->second.constraint_signs_.insert(it->second.constraint_signs_.begin(),
+        it->second.constraint_signs_.insert(it->second.constraint_signs_.end(),
                                             constraint_signs.begin(),
                                             constraint_signs.end() );
         it->second.nRows += e_dot_star.rows();
+        // DEBUG =============================================
+        /* std::cerr<<std::setprecision(2)<<"HiQPSolver::appendStage - after appending existing stage: "<<std::endl; */
+        /* std::cerr<<"J_t: "<<std::endl<<it->second.J_<<std::endl; */
+        /* std::cerr<<"signs: "; */
+        /* for (unsigned int k=0;k<it->second.constraint_signs_.size();k++) */
+        /*  std::cerr<<it->second.constraint_signs_[k]<<" "; */
+
+        /* std::cerr<<std::endl<<"de*: "<<it->second.e_dot_star_.transpose()<<std::endl;  */
+	// DEBUG END ==========================================
       }
 
       return 0;

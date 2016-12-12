@@ -26,9 +26,10 @@ namespace tasks
 {
 
   int TaskFullPose::init(const std::vector<std::string>& parameters,
-                         RobotStatePtr robot_state,
-                         unsigned int n_controls) {
+                         RobotStatePtr robot_state) {
     int size = parameters.size();
+    unsigned int n_controls = robot_state->getNumControls();
+    unsigned int n_joints = robot_state->getNumJoints();
     if (size != 1 && size != n_controls + 1) {
       printHiqpWarning("TaskFullPose requires 1 or " 
         + std::to_string(n_controls+1) + " parameters, got " 
@@ -46,32 +47,34 @@ namespace tasks
       }
     }
 
-    e_.resize(n_controls);
-    J_.resize(n_controls, n_controls);
+    e_ = Eigen::VectorXd::Zero(n_controls);
+    J_ = Eigen::MatrixXd::Zero(n_controls, n_joints);
     performance_measures_.resize(0);
     task_types_.insert(task_types_.begin(), n_controls, 0);
 
-    for (int j=0; j<n_controls; ++j)
-      for (int i=0; i<n_controls; ++i) 
-        J_(j, i) = (j==i ? -1 : 0);
-
-    // std::cout << "--- init ---\n";
-    // std::cout << "init e_ = " << e_ << "\n";
-    // std::cout << "init J_ = " << J_ << "\n";
+    // The jacobian has zero columns for non-writable joints
+    // -1  0  0  0  0
+    //  0 -1  0  0  0
+    //  0  0  0 -1  0
+    for (int c=0, r=0; c<n_joints; ++c) {
+      if (robot_state->isQNrWritable(c)) {
+        J_(r, c) = -1;
+        r++;
+      }
+    }
 
     return 0;
   }
 /// \bug Noticed, that the measured values for the 4 gripper joints can be huge which causes the optimization to fail for this task. Maybe due to the discrepancy between specified and controlled joints ...?  
   int TaskFullPose::update(RobotStatePtr robot_state) {
     const KDL::JntArray &q = robot_state->kdl_jnt_array_vel_.q;
-    double diff = 0;
+    int j=0;
     for (int i=0; i<q.rows(); ++i) {
-      e_(i) = desired_configuration_.at(i) - q(i);
-      // std::cerr<<"desired_config(i): "<<desired_configuration_.at(i)<<" q(i): "<<q(i)<<std::endl;
+      if (robot_state->isQNrWritable(i)) {
+        e_(j) = desired_configuration_.at(j) - q(i);
+        j++;
+      }
     }
-    // std::cout << "--- update ---\n";
-    // std::cout << "update e_ = " << e_ << "\n";
-
     return 0;
   }
 

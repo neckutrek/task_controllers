@@ -32,10 +32,16 @@ namespace hiqp
 {
 
   std::ostream& operator<<(std::ostream& os, const KDL::Vector& kdl_vector);
+  std::ostream& operator<<(std::ostream& os, const KDL::Jacobian& kdl_jacobian);
   std::ostream& operator<<(std::ostream& os, const KDL::Tree& kdl_tree);
+  std::ostream& operator<<(std::ostream& os, const KDL::Frame& kdl_frame);
   std::ostream& operator<<(std::ostream& os, const KDL::FrameVel& kdl_frame_vel);
   std::ostream& operator<<(std::ostream& os, const KDL::JntArrayVel& kdl_joints_vel);
   std::ostream& operator<<(std::ostream& os, const KDL::Chain& kdl_chain);
+
+  int kdl_getAllQNrFromTree(const KDL::Tree& kdl_tree, std::vector<unsigned int>& qnrs);
+
+  std::string kdl_getJointNameFromQNr(const KDL::Tree& kdl_tree, unsigned int q_nr);
 
   int kdl_getQNrFromJointName(const KDL::Tree& kdl_tree, 
                               const std::string& joint_name);

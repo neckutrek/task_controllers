@@ -41,8 +41,7 @@ namespace tasks
     ~TaskGeometricProjection() noexcept = default;
 
     int init(const std::vector<std::string>& parameters,
-             RobotStatePtr robot_state,
-             unsigned int n_controls);
+             RobotStatePtr robot_state);
 
     int update(RobotStatePtr robot_state);
 
@@ -77,7 +76,7 @@ namespace tasks
     std::shared_ptr<PrimitiveB>                      primitive_b_;
     KDL::Frame                                       pose_b_;
     KDL::Jacobian                                    jacobian_b_;
-
+    double                                           d_i_; ///<influence zone
   }; // class TaskGeometricProjection
 
 } // namespace tasks

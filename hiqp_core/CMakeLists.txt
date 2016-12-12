@@ -19,6 +19,7 @@ project(hiqp_core)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR})
 set(CMAKE_CXX_FLAGS "-O3 -std=c++11 -Wl,-z,defs")
+set(CMAKE_VERBOSE_MAKEFILE off)
 
 set(GUROBI_INCLUDE_DIR "$ENV{GUROBI_HOME}/include") 
 set(GUROBI_LIB_DIR "$ENV{GUROBI_HOME}/lib")
@@ -28,15 +29,15 @@ find_package(catkin REQUIRED COMPONENTS roscpp
                                         controller_interface
                                         visualization_msgs
                                         kdl_parser
+                                        hiqp_collision_check
                                         hiqp_msgs)
 
 find_package(orocos_kdl REQUIRED)
 find_package(Eigen3 REQUIRED)
-#find_package(CASADI REQUIRED)
 
-catkin_package(CATKIN_DEPENDS roscpp controller_interface visualization_msgs kdl_parser hiqp_msgs
-               INCLUDE_DIRS include
-               LIBRARIES ${PROJECT_NAME} #casadi
+catkin_package(CATKIN_DEPENDS roscpp controller_interface hiqp_collision_check visualization_msgs kdl_parser hiqp_msgs
+               INCLUDE_DIRS include 
+               LIBRARIES ${PROJECT_NAME} 
                DEPENDS orocos_kdl)
 
 include_directories(include ${catkin_INCLUDE_DIRS})
@@ -53,7 +54,6 @@ add_library(${PROJECT_NAME} src/utilities.cpp
                             src/geometric_primitives/geometric_primitive_map.cpp
                             src/geometric_primitives/geometric_primitive_visualizer.cpp
 
-                            #src/solvers/casadi_solver.cpp
                             src/solvers/gurobi_solver.cpp
                             src/tasks/dynamics_first_order.cpp
                             src/tasks/dynamics_jnt_limits.cpp
@@ -68,7 +68,6 @@ add_library(${PROJECT_NAME} src/utilities.cpp
 
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} 
                                       ${orocos_kdl_LIBRARIES} 
-                                      #${CASADI_LIBRARIES} 
                                       ${GUROBI_LIBS})
 
 install(DIRECTORY include/${PROJECT_NAME}/
@@ -88,3 +87,4 @@ install(TARGETS ${PROJECT_NAME}
 
 install(FILES plugins.xml
         DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+

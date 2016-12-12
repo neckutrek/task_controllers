@@ -29,6 +29,7 @@
 #include <hiqp/geometric_primitives/geometric_point.h>
 #include <hiqp/geometric_primitives/geometric_line.h>
 #include <hiqp/geometric_primitives/geometric_cylinder.h>
+#include <iomanip>
 
 namespace hiqp {
 
@@ -75,7 +76,7 @@ namespace hiqp {
     dyn_->active_ = active_;
     dyn_->visible_ = visible_;
 
-    int init_def = def_->initialize(def_params, robot_state, n_controls_);
+    int init_def = def_->initialize(def_params, robot_state);
     int init_dyn = dyn_->init(dyn_params, robot_state, def_->getInitialValue(), def_->getFinalValue(robot_state));
     return (init_def != 0 || init_dyn != 0 ? -5 : 0);
   }
@@ -85,6 +86,16 @@ namespace hiqp {
     if (!def_ || !dyn_) return;
     if (def_->update(robot_state) != 0) return;
     dyn_->update(robot_state, def_->e_, def_->J_);
+   
+    // DEBUG =============================================
+    // std::cerr<<std::setprecision(2)<<"Update task '"<<getTaskName()<<"'"<<std::endl;
+    // std::cerr<<"J_t:"<<std::endl<<def_->J_<<std::endl;
+    // std::cerr<<"signs: ";
+    // for(int i=0; i<def_->task_types_.size();i++)
+    //   std::cerr<<def_->task_types_[i]<<" ";
+
+    // std::cerr<<std::endl<<"de*: "<<dyn_->e_dot_star_.transpose()<<std::endl;
+    // DEBUG END ==========================================
   }
 
   int Task::constructDefinition(const std::vector<std::string>& def_params)

@@ -30,7 +30,7 @@ rosservice call /yumi/hiqp_joint_velocity_controller/set_task \
 priority: 1
 visible: 1
 active: 1
-def_params: ['TDefGeomProj', 'point', 'plane', 'gripper_r_base_avoidance_point > floor_avoidance_plane']
+def_params: ['TDefGeomProj', 'point', 'plane', 'gripper_r_base_avoidance_point > floor_avoidance_plane', '0.01']
 dyn_params: ['TDynFirstOrder', '1.0']"
 
 rosservice call /yumi/hiqp_joint_velocity_controller/set_task \

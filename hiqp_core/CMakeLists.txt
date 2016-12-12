@@ -19,6 +19,7 @@ project(hiqp_core)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR})
 set(CMAKE_CXX_FLAGS "-O3 -std=c++11 -Wl,-z,defs")
+set(CMAKE_VERBOSE_MAKEFILE off)
 
 set(GUROBI_INCLUDE_DIR "$ENV{GUROBI_HOME}/include") 
 set(GUROBI_LIB_DIR "$ENV{GUROBI_HOME}/lib")
@@ -33,7 +34,6 @@ find_package(catkin REQUIRED COMPONENTS roscpp
 
 find_package(orocos_kdl REQUIRED)
 find_package(Eigen3 REQUIRED)
-#find_package(CASADI REQUIRED)
 
 catkin_package(CATKIN_DEPENDS roscpp controller_interface hiqp_collision_check visualization_msgs kdl_parser hiqp_msgs
                INCLUDE_DIRS include 

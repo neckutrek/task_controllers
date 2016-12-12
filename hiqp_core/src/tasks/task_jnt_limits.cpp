@@ -50,19 +50,20 @@ namespace tasks
     jnt_lower_bound_ = std::stod( parameters.at(2) );
     jnt_upper_bound_ = std::stod( parameters.at(3) );
 
+    //Jacobian entries are 1 at column link_frame_q_nr_ and 0 otherwise
     for (int i=0; i<4; ++i) {
       for (int j=0; j<n_joints; ++j) {
         J_(i, j) = (j == link_frame_q_nr_ ? 1 : 0);
       }
     }
-    
+
     return 0;
   }
 
   int TaskJntLimits::update(RobotStatePtr robot_state) {
     double q = robot_state->kdl_jnt_array_vel_.q(link_frame_q_nr_);
     
-    e_(0) = q;
+    e_(0) = q; //e_(0), and e_(1) do not actually matter, since they're ignored in DynamicsJntLimits where de_*=+/- dq_max
     e_(1) = q;
     e_(2) = q - jnt_lower_bound_;
     e_(3) = q - jnt_upper_bound_;

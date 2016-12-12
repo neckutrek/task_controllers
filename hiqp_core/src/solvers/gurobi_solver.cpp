@@ -21,7 +21,7 @@
 #include <ros/assert.h>
 #include <cassert>
 #include <iostream>
-
+#include <iomanip>
 #include <Eigen/Dense>
 
 #define OUTPUT_FLAG      0
@@ -30,7 +30,7 @@
 #define SCALE_FLAG       1
 #define TIME_LIMIT       1.0//0.005
 #define DUAL_REDUCTIONS  1
-#define TIKHONOV_FACTOR  1e-4
+#define TIKHONOV_FACTOR  5*1e-5
 
 namespace hiqp
 {
@@ -133,6 +133,17 @@ namespace hiqp
         obj.addTerms(coeff_w, w, w, s_dim);
         model.setObjective(obj, GRB_MINIMIZE);
         model.update();
+
+        // DEBUG =============================================
+        // std::cerr<<std::setprecision(2)<<"Gurobi solver stage "<<s_count<<" matrices:"<<std::endl;
+	// std::cerr<<"A"<<std::endl<<A_<<std::endl;
+	// std::cerr<<"signs: ";
+        // for (unsigned k=0; k<senses_.size(); k++)
+	//   std::cerr<<senses_[k]<<" ";
+
+	// std::cerr<<std::endl<<"b"<<b_.transpose()<<std::endl;
+	// std::cerr<<"w"<<w_.transpose()<<std::endl;
+	// DEBUG END ==========================================
 
         // ========== SOLVE ==========
         model.optimize();

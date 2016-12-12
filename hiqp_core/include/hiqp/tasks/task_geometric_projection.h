@@ -76,7 +76,7 @@ namespace tasks
     std::shared_ptr<PrimitiveB>                      primitive_b_;
     KDL::Frame                                       pose_b_;
     KDL::Jacobian                                    jacobian_b_;
-
+    double                                           d_i_; ///<influence zone
   }; // class TaskGeometricProjection
 
 } // namespace tasks

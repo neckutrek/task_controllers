@@ -158,7 +158,7 @@ bool SDFCollisionCheck::obstacleGradient (const Eigen::Vector3d &x, Eigen::Vecto
 bool SDFCollisionCheck::obstacleGradientBulk (const CollisionCheckerBase::SamplesVector &x, CollisionCheckerBase::SamplesVector &g, std::string frame_id) {
     //fill in g so we have a result always
     Eigen::Vector3d gd;
-    gd<<Dmax,Dmax,Dmax;
+    gd = Eigen::Vector3d(1,1,1)*std::numeric_limits<double>::quiet_NaN();
     g.clear();
     for(int i=0; i<x.size(); ++i) {
 	g.push_back(gd);
@@ -188,6 +188,7 @@ bool SDFCollisionCheck::obstacleGradientBulk (const CollisionCheckerBase::Sample
 	request2map.setIdentity();
     }
     data_mutex.lock();
+ 
     for(int i=0; i<x.size(); ++i) {
 	//transform x[i] to map frame
 	Eigen::Vector3d x_new;

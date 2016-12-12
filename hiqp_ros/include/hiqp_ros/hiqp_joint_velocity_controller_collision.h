@@ -35,6 +35,7 @@ class HiQPJointVelocityControllerCollision : public HiQPJointVelocityController 
 	ros::Publisher vis_pub_;	
 	visualization_msgs::MarkerArray marker_array;
 
+	hiqp::CollisionCheckerBase::SamplesVector samples, gradients;
 };
     
 }

@@ -167,11 +167,8 @@ namespace hiqp
           delete[] rhsides;
           delete[] coeff_x;
           delete[] coeff_w;
-
-	  // std::cerr<<"A"<<A_<<std::endl;
-	  // std::cerr<<"b"<<b_<<std::endl;
-	  // std::cerr<<"w"<<w_<<std::endl;
-	  //model.write("/home/yumi/Desktop/model.lp");
+            
+	  //model.write("/home/rkg/Desktop/model.lp");
 	  //model.write("/home/yumi/Desktop/model.sol");
 
           return false;

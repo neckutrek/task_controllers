@@ -23,8 +23,8 @@ void HiQPJointVelocityControllerCollision::initialize() {
     samples.clear();
 }
 
-void HiQPJointVelocityControllerCollision::setJointControls(Eigen::VectorXd& u) {
-    HiQPJointVelocityController::setJointControls(u);
+void HiQPJointVelocityControllerCollision::computeControls(Eigen::VectorXd& u) {
+    HiQPJointVelocityController::computeControls(u);
     
     // for testing, ask a random point within map for a gradient
     Eigen::Vector3d pt;

@@ -141,7 +141,7 @@ namespace hiqp
         // DEBUG =============================================
         // std::cerr<<std::setprecision(2)<<"Gurobi solver stage "<<s_count<<" matrices:"<<std::endl;
 	// std::cerr<<"A"<<std::endl<<A_<<std::endl;
-	// std::cerr<<"signs: ";
+        // std::cerr<<"signs: ";
         // for (unsigned k=0; k<senses_.size(); k++)
 	//   std::cerr<<senses_[k]<<" ";
 

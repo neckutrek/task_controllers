@@ -76,9 +76,17 @@ namespace hiqp {
     dyn_->active_ = active_;
     dyn_->visible_ = visible_;
 
-    int init_def = def_->initialize(def_params, robot_state);
-    int init_dyn = dyn_->init(dyn_params, robot_state, def_->getInitialValue(), def_->getFinalValue(robot_state));
-    return (init_def != 0 || init_dyn != 0 ? -5 : 0);
+    if (def_->initialize(def_params, robot_state) != 0)
+      return -5;
+
+    if (dyn_->init(dyn_params, robot_state, def_->getInitialValue(), def_->getFinalValue(robot_state)) != 0)
+      return -6;
+
+    if (!checkConsistency(robot_state))
+      return -7;
+
+    // The task was successfully setup
+    return 0;
   }
 
   int Task::update(RobotStatePtr robot_state)
@@ -179,6 +187,49 @@ namespace hiqp {
     }
 
     return 0;
+  }
+
+  bool Task::checkConsistency(RobotStatePtr robot_state) {
+    if (!def_) {
+      printHiqpWarning("The task '" + task_name_ + "' is inconsistent after initialization. The task definition was not constructed properly.");
+      return false;
+    }
+
+    if (!dyn_) {
+      printHiqpWarning("The task '" + task_name_ + "' is inconsistent after initialization. The task dynamics was not constructed properly.");
+      return false;
+    }
+
+    if (def_->e_.size() != def_->J_.rows()) {
+      printHiqpWarning("The task '" + task_name_ + "' is inconsistent after initialization (dimension mismatch). " +
+        "Size of task function (e_.size()) is " + std::to_string(def_->e_.size()) + ", " +
+        "number of rows of task jacobian (J_.rows()) is " + std::to_string(def_->J_.rows()));
+      return false;
+    }
+
+    if (def_->task_types_.size() != def_->J_.rows()) {
+      printHiqpWarning("The task '" + task_name_ + "' is inconsistent after initialization (dimension mismatch). " +
+        "Size of task types array (task_types_.size()) is " + std::to_string(def_->task_types_.size()) + ", " +
+        "number of rows of task jacobian (J_.rows()) is " + std::to_string(def_->J_.rows()));
+      return false;
+    }
+
+    if (dyn_->e_dot_star_.size() != def_->J_.rows()) {
+      printHiqpWarning("The task '" + task_name_ + "' is inconsistent after initialization (dimension mismatch). " +
+        "Size of desired task dynamics (e_dot_star_.size()) is " + std::to_string(dyn_->e_dot_star_.size()) + ", " +
+        "number of rows of task jacobian (J_.rows()) is " + std::to_string(def_->J_.rows()));
+      return false;
+    }
+
+    if (def_->J_.cols() != robot_state->getNumJoints()) {
+      printHiqpWarning("The task '" + task_name_ + "' is inconsistent after initialization (dimension mismatch). " +
+        "Number of columns of task jacobian (J_.cols()) is " + std::to_string(def_->J_.cols()) + ", " +
+        "total number of joints in the robot is " + std::to_string(robot_state->getNumJoints()));
+      return false;
+    }
+
+    // the task definition and dynamics are consistent
+    return true;
   }
 
 

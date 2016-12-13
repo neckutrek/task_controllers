@@ -27,6 +27,13 @@ namespace tasks
                               RobotStatePtr robot_state,
                               const Eigen::VectorXd& e_initial,
                               const Eigen::VectorXd& e_final) {
+    int size = parameters.size();
+    if (size != 2) {
+      printHiqpWarning("TDynJntLimits requires 2 parameters, got " 
+        + std::to_string(size) + "! Initialization failed!");
+      return -1;
+    }
+
     e_dot_star_.resize(4);
     dq_max_ = std::stod( parameters.at(1) );
     performance_measures_.resize(0);

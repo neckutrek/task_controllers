@@ -47,13 +47,16 @@ namespace tasks
 
     int monitor();
 
-    int project(std::shared_ptr<PrimitiveA> first, std::shared_ptr<PrimitiveB> second);
-
   private:
     TaskGeometricProjection(const TaskGeometricProjection& other) = delete;
     TaskGeometricProjection(TaskGeometricProjection&& other) = delete;
     TaskGeometricProjection& operator=(const TaskGeometricProjection& other) = delete;
     TaskGeometricProjection& operator=(TaskGeometricProjection&& other) noexcept = delete;
+
+    int project(std::shared_ptr<PrimitiveA> first, std::shared_ptr<PrimitiveB> second);
+
+    /// \brief This sets jacobian columns corresponding to non-writable joints to 0
+    void maskJacobian(RobotStatePtr robot_state);
 
     /*! \brief Computes column number q_nr of the resulting jacobian for the 
      *         vector (p2-p1), NOTE! p1 must be related to pose_a_ and p2 to 
@@ -76,8 +79,7 @@ namespace tasks
     std::shared_ptr<PrimitiveB>                      primitive_b_;
     KDL::Frame                                       pose_b_;
     KDL::Jacobian                                    jacobian_b_;
-    double                                           d_i_; ///<influence zone
-  }; // class TaskGeometricProjection
+  };
 
 } // namespace tasks
 

@@ -14,7 +14,7 @@ class HiQPJointVelocityControllerCollision : public HiQPJointVelocityController 
 
     public:
 	void initialize();
-	void setJointControls(Eigen::VectorXd& u);
+	void computeControls(Eigen::VectorXd& u);
 
 	void starting(const ros::Time& time) {
 	    if(collisionChecker!=nullptr) {

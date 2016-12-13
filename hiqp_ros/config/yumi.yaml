@@ -4,7 +4,8 @@ yumi:
       publish_rate: 50  
   hiqp_joint_velocity_controller:
     type: hiqp_ros/HiQPJointVelocityController
-    fps: 20
+    sampling_time: 1.0 # ms
+    visualization_publish_rate: 50 #Hz
     joints:
       - yumi_joint_1_r
       - yumi_joint_2_r
@@ -22,7 +23,7 @@ yumi:
       - yumi_joint_6_l
     task_monitoring:
       active: 1
-      publish_rate: 50.0
+      publish_rate: 50.0 # Hz
   hiqp_joint_velocity_controller_collision:
     type: hiqp_ros/HiQPJointVelocityControllerCollision
     fps: 20

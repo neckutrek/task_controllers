@@ -6,7 +6,6 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /RobotModel1
         - /RobotModel1/Links1
         - /RobotModel1/Links1/gripper_r_base1
         - /Tasks1

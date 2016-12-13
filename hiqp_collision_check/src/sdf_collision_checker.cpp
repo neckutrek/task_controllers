@@ -126,8 +126,8 @@ bool SDFCollisionCheck::obstacleGradient (const Eigen::Vector3d &x, Eigen::Vecto
 	    tf::StampedTransform r2m;
 	    ros::Time now = ros::Time::now();
 	    try {
-		tl.waitForTransform(map_frame_id,request_frame_id, now, ros::Duration(0.15) );
-		tl.lookupTransform(map_frame_id,request_frame_id, now, r2m);
+		tl.waitForTransform(map_frame_id,frame_id, now, ros::Duration(0.15) );
+		tl.lookupTransform(map_frame_id,frame_id, now, r2m);
 	    } catch (tf::TransformException ex) {
 		ROS_ERROR("%s",ex.what());
 		return false;
@@ -143,12 +143,13 @@ bool SDFCollisionCheck::obstacleGradient (const Eigen::Vector3d &x, Eigen::Vecto
     x_new  = request2map*x;
 
     data_mutex.lock();
-    if(ValidGradient(x)) {
+    if(ValidGradient(x_new)) {
 	g(0) = SDFGradient(x_new,0);
 	g(1) = SDFGradient(x_new,1);
 	g(2) = SDFGradient(x_new,2);
 	g.normalize(); // normal vector
 	g = -g*SDF(x_new);  // scale by interpolated SDF value
+	g = request2map.inverse().rotation()*g;
     }
     data_mutex.unlock();
 
@@ -174,8 +175,8 @@ bool SDFCollisionCheck::obstacleGradientBulk (const CollisionCheckerBase::Sample
 	    tf::StampedTransform r2m;
 	    ros::Time now = ros::Time::now();
 	    try {
-		tl.waitForTransform(map_frame_id,request_frame_id, now, ros::Duration(0.15) );
-		tl.lookupTransform(map_frame_id,request_frame_id, now, r2m);
+		tl.waitForTransform(map_frame_id, frame_id, now, ros::Duration(0.25) );
+		tl.lookupTransform(map_frame_id, frame_id, now, r2m);
 	    } catch (tf::TransformException ex) {
 		ROS_ERROR("%s",ex.what());
 		return false;
@@ -187,18 +188,20 @@ bool SDFCollisionCheck::obstacleGradientBulk (const CollisionCheckerBase::Sample
 	request2map.setIdentity();
     }
     data_mutex.lock();
- 
+
+    //std::cout<<"Transform is "<<request2map.matrix()<<std::endl; 
     for(int i=0; i<x.size(); ++i) {
 	//transform x[i] to map frame
 	Eigen::Vector3d x_new;
 	x_new  = request2map*x[i];
 	
-	if(ValidGradient(x[i])) {
+	if(ValidGradient(x_new)) {
 	    g[i](0) = SDFGradient(x_new,0);
 	    g[i](1) = SDFGradient(x_new,1);
 	    g[i](2) = SDFGradient(x_new,2);
 	    g[i].normalize(); // normal vector
 	    g[i] = -g[i]*SDF(x_new);  // scale by interpolated SDF value
+	    g[i] = request2map.inverse().rotation()*g[i];
 	}
     }
     

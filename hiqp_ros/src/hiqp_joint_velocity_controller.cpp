@@ -75,13 +75,8 @@ void HiQPJointVelocityController::initialize() {
   loadTasksFromParamServer();
 }
 
-
-
-
-
 void HiQPJointVelocityController::setJointControls(Eigen::VectorXd& u) {
   if (!is_active_) return;
-
     std::vector<double> outcon(u.size());
     task_manager_.getVelocityControls(this->getRobotState(), outcon);
     int i=0;

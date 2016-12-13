@@ -17,7 +17,6 @@ SDFCollisionCheck::SDFCollisionCheck() {
    n_ = ros::NodeHandle();
 
    nh_.param<std::string>("sdf_map_topic",sdf_map_topic,"sdf_map");
-
    myGrid_ = new float***;
    validMap = false;
    ROS_INFO("Constructor done");
@@ -168,7 +167,6 @@ bool SDFCollisionCheck::obstacleGradientBulk (const CollisionCheckerBase::Sample
 
     if(!this->isActive()) return false;
     if(!validMap) return false;
-
 
     //if a new frame_id, check on TF for a transformation to the correct frame and buffer
     if(frame_id != "") {

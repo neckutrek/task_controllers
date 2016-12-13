@@ -24,6 +24,19 @@ namespace hiqp
   namespace tasks
   {
     //==================================================================================
+    TaskAvoidCollisionsSDF::TaskAvoidCollisionsSDF(std::shared_ptr<GeometricPrimitiveMap> geom_prim_map, std::shared_ptr<Visualizer> visualizer)  : TaskDefinition(geom_prim_map, visualizer) 
+    {
+      printHiqpInfo("Initializing collision checker");
+      collision_checker_ = std::make_shared<hiqp::SDFCollisionCheck> ();
+      collision_checker_->init();
+      collision_checker_->activate();
+    }
+    //==================================================================================
+    TaskAvoidCollisionsSDF::~TaskAvoidCollisionsSDF()
+    {
+      collision_checker_->deactivate();
+    }
+    //==================================================================================
 
     int TaskAvoidCollisionsSDF::init(const std::vector<std::string>& parameters,
 				     RobotStatePtr robot_state) {
@@ -78,16 +91,14 @@ namespace hiqp
 	}
 
       performance_measures_.resize(0);
-      task_types_.insert(task_types_.begin(), n_dimensions_, -1); // -1 leq, 0 eq, 1 geq
+      task_types_.insert(task_types_.begin(), n_dimensions_, 0); // -1 leq, 0 eq, 1 geq
 
       fk_solver_pos_ = std::make_shared<KDL::TreeFkSolverPos_recursive>(robot_state->kdl_tree_);
       fk_solver_jac_ = std::make_shared<KDL::TreeJntToJacSolver>(robot_state->kdl_tree_);
 
       root_frame_id_=robot_state->kdl_tree_.getRootSegment()->second.segment.getName();
 
-      printHiqpInfo("Initializing collision checker");
-      collision_checker_ = std::make_shared<hiqp::SDFCollisionCheck> ();
-      collision_checker_->init();
+
       return 0;
     }
     //==================================================================================
@@ -104,7 +115,7 @@ namespace hiqp
 	  std::vector<KinematicQuantities> kin_q_list;
 	  if(primitiveForwardKinematics(kin_q_list, primitives_[i], robot_state) < 0)
 	    {
-	      printHiqpWarning("TaskAvoidCollisionsSDF::update, failed.");
+	      printHiqpWarning("TaskAvoidCollisionsSDF::update, primitive forward kinematics computation failed.");
 	      return -2;
 	    }
 
@@ -113,31 +124,40 @@ namespace hiqp
 	  SamplesVector test_pts;
 	  for (unsigned int j=0; j<kin_q_list.size(); j++)
 	    {
-	      Eigen::Vector3d p(kin_q_list[j].ee_pose_.p.x(),kin_q_list[j].ee_pose_.p.y(),kin_q_list[j].ee_pose_.p.z());
+	      Eigen::Vector3d p(kin_q_list[j].ee_p_.x(),kin_q_list[j].ee_p_.y(),kin_q_list[j].ee_p_.z());
 	      test_pts.push_back(p);
 	    }
 
+	  std::cerr<<"Testing collision checker with root frame: "<<root_frame_id_<<std::endl;
+	  std::cerr<<"Test points: "<<std::endl;
+	  for (int k=0; k<test_pts.size();k++)
+	    std::cerr<<test_pts[k].transpose()<<" ";
+	  std::cerr<<std::endl;
 
 	  SamplesVector gradients;
-	  if(!collision_checker_->obstacleGradientBulk(test_pts, gradients,root_frame_id_))
+
+	  if(!collision_checker_->obstacleGradientBulk(test_pts, gradients, root_frame_id_))
 	    {
-	      //DEBUG HACK, JUST FOR TESTING IN ABSENCE OF A MAP!!!!!!!!!!!!!!
-	      //printHiqpWarning("TaskAvoidCollisionsSDF::update, collision checker failed.");
-	      //	  return -2;
-	      gradients.clear();
-	      Eigen::Vector3d p(kin_q_list[0].ee_pose_.p.x(),kin_q_list[0].ee_pose_.p.y(),kin_q_list[0].ee_pose_.p.z());
-	      Eigen::Vector3d gradient=Eigen::Vector3d(0.25, 0.0, 0.25)-p;
-	      gradients.push_back(Eigen::Vector3d(0.25, 0.0, 0.25)-p);
-	      // std::cerr<<"ee position: "<<p.transpose()<<std::endl;
-	      // std::cerr<<"gradient: "<<gradient.transpose()<<std::endl;
-	      //DEBUG HACK, END!!!!!!!!!!!!!!
+	      printHiqpWarning("TaskAvoidCollisionsSDF::update, collision checker failed.");
+	      return -2;
 	    }
+
+	  //HAAAAACK TESTING 
+	  // Eigen::Vector3d g=Eigen::Vector3d(0, 0, 0)-test_pts[0];
+          // gradients.push_back(g);
+
+	  std::cerr<<"computed gradients: "<<std::endl;
+	  for(int k=0; k<gradients.size();k++)
+	    std::cerr<<gradients[k].transpose()<<std::endl;
+	  std::cerr<<std::endl;
+	  //HAAAAACK TESTING END
+
 	  assert(gradients.size() > 0); //make sure a gradient was found
 
 	  //compute the task jacobian for the current geometric primitive
 	  appendTaskJacobian(kin_q_list, gradients);
 	  //compute the task function value vector for the current geometric primitive
-	  appendTaskFunction(primitives_[i]->getType(),kin_q_list, gradients);
+	  appendTaskFunction(primitives_[i],kin_q_list, gradients);
 	}
 
       return 0;
@@ -151,37 +171,56 @@ namespace hiqp
 	  Eigen::Vector3d gradient(gradients[i]);
 	  J_.conservativeResize(J_.rows()+1, Eigen::NoChange);
 	  //to check if a gradient to an obstacle is valid
-	  if(collision_checker_->isValid(gradient))
+	  if(!collision_checker_->isValid(gradient))
 	    {
-	      //project the Jacobian onto the normalized gradient
-	      gradient.normalize();
-	      Eigen::MatrixXd ee_J_vel=kin_q_list[i].ee_J_.data.topRows<3>(); //velocity Jacobian
-	      //DEBUG===============================
-	      //std::cerr<<"Velocity Jacobian: "<<std::endl<<ee_J_vel<<std::endl;
-              //std::cerr<<"Normalized gradient transpose: "<<std::endl<<gradient.transpose()<<std::endl;
-	      //DEBUG END===============================
-	      J_.row(J_.rows()-1)=gradient.transpose()*ee_J_vel;
-            }
-          else
-	    J_.row(J_.rows()-1).setZero();  //insert a zero-row
+	      J_.row(J_.rows()-1).setZero();  //insert a zero-row
+              continue;
+	    }
+
+	  //project the Jacobian onto the normalized gradient
+	  gradient.normalize();
+	  Eigen::MatrixXd ee_J_vel=kin_q_list[i].ee_J_.data.topRows<3>(); //velocity Jacobian
+	  //DEBUG===============================
+	  //std::cerr<<"Velocity Jacobian: "<<std::endl<<ee_J_vel<<std::endl;
+	  //std::cerr<<"Normalized gradient transpose: "<<std::endl<<gradient.transpose()<<std::endl;
+	  //DEBUG END===============================
+	  J_.row(J_.rows()-1)= -gradient.transpose()*ee_J_vel;
 	}
       //DEBUG===============================
       //std::cerr<<"Task Jacobian: "<<std::endl<<J_<<std::endl;
       //DEBUG END===============================
     }
     //==================================================================================
-    void TaskAvoidCollisionsSDF::appendTaskFunction(const std::string& primitive_type, const std::vector<KinematicQuantities> kin_q_list, const SamplesVector& gradients)
+    void TaskAvoidCollisionsSDF::appendTaskFunction( const std::shared_ptr<geometric_primitives::GeometricPrimitive>& primitive, const std::vector<KinematicQuantities> kin_q_list, const SamplesVector& gradients)
     {
       assert(kin_q_list.size()==gradients.size());
       for(unsigned int i=0; i<gradients.size();i++)
-	{
-	  Eigen::Vector3d gradient(gradients[i]);
-	  e_.conservativeResize(e_.size()+1);          
-	  //to check if a gradient to an obstacle is valid
-	  if(collision_checker_->isValid(gradient))
-	    e_(e_.size()-1) = -gradient.norm();  //append the gradient length to the task function vector
-	  else
-	    e_(e_.size()-1) = 0.0; //insert zero
+       	{
+    	  Eigen::Vector3d gradient(gradients[i]);
+    	  e_.conservativeResize(e_.size()+1);          
+    	  //check if a gradient to an obstacle is valid
+    	  if(!collision_checker_->isValid(gradient))
+    	    {
+	      /// \todo this implicitly assumes that e*(e=0) = 0!
+    	      e_(e_.size()-1) = 0.0; //insert zero
+    	      continue;
+    	    }
+
+    	  if(strcmp(primitive->getType().c_str(),"point")==0)
+    	    {
+    	      e_(e_.size()-1) = gradient.norm();  //append the gradient length to the task function vector
+    	    }
+    	  else if(strcmp(primitive->getType().c_str(),"sphere")==0)
+    	    {
+    	      std::shared_ptr<GeometricSphere> sphere(std::static_pointer_cast<GeometricSphere>(primitive)); 
+    	      e_(e_.size()-1) = gradient.norm()-sphere->getRadius();
+    	    }
+    	  else
+	    {
+	      printHiqpWarning("TaskAvoidCollisionsSDF::appendTaskFunction, appending task function for primitive type '" + primitive->getType() + "' not implemented yet. Setting task function value to 0!");
+	      e_(e_.size()-1)=0.0;
+	    }
+	  
 	}
       //DEBUG===============================
       //std::cerr<<"Task function value vector: "<<e_.transpose()<<std::endl;
@@ -200,7 +239,7 @@ namespace hiqp
     //==================================================================================
     int TaskAvoidCollisionsSDF::forwardKinematics(KinematicQuantities& kin_q, RobotStatePtr const robot_state)const
     {
-      if(fk_solver_pos_->JntToCart(robot_state->kdl_jnt_array_vel_.q, kin_q.ee_pose_, kin_q.frame_id_) < 0)
+      if(fk_solver_pos_->JntToCart(robot_state->kdl_jnt_array_vel_.q, kin_q.ee_frame_, kin_q.frame_id_) < 0)
 	{
 	  printHiqpWarning("TaskAvoidCollisionsSDF::forwardKinematics, end-effector FK for link '" + kin_q.frame_id_ + "' failed.");
 	  return -2;
@@ -239,10 +278,21 @@ namespace hiqp
 	      printHiqpWarning("TaskAvoidCollisionsSDF::primitiveForwardKinematics, primitive forward kinematics for GeometricPoint primitive '" + point->getName() + "' failed.");
 	      return -2;
 	    }  
+
 	  //shift the Jacobian reference point
-	  kin_q.ee_J_.changeRefPoint(kin_q.ee_pose_.M*coord);
+	  kin_q.ee_J_.changeRefPoint(kin_q.ee_frame_.M*coord);
+	  //compute the ee position in the base frame
+	  kin_q.ee_p_=kin_q.ee_frame_.p+kin_q.ee_frame_.M*coord;
 
 	  kin_q_list.push_back(kin_q);
+
+	  //DEBUG =========================================
+	  // std::cerr<<"Point coordinates: "<<coord<<std::endl;
+	  // std::cerr<<"frame id: "<<kin_q.frame_id_<<std::endl;
+	  // std::cerr<<"After ref change - J: "<<std::endl<<kin_q.ee_J_.data<<std::endl;
+	  // std::cerr<<"After ref change - ee: "<<kin_q.ee_pose_.p<<std::endl;
+	  //DEBUG END =========================================
+
 	}
       else if(strcmp(type.c_str(),"sphere")==0)
 	{
@@ -257,7 +307,9 @@ namespace hiqp
 	      return -2;
 	    }   
 	  //shift the Jacobian reference point
-	  kin_q.ee_J_.changeRefPoint(kin_q.ee_pose_.M*coord);
+	  kin_q.ee_J_.changeRefPoint(kin_q.ee_frame_.M*coord);
+	  //compute the ee position in the base frame
+	  kin_q.ee_p_=kin_q.ee_frame_.p+kin_q.ee_frame_.M*coord;
 
 	  kin_q_list.push_back(kin_q);
 	}

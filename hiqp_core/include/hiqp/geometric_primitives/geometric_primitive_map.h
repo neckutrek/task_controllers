@@ -51,7 +51,7 @@ namespace geometric_primitives
     int removeGeometricPrimitive(std::string name);
 
     int clear();
-    /// \todo add a non-templated version which gives back a pointer to the geometric_primitives::GeometricPrimitive base class to avoid the need to know the primitive type at compile-time 
+
     template<typename PrimitiveType>
     std::shared_ptr<PrimitiveType> getGeometricPrimitive(const std::string& name);
 
@@ -59,10 +59,9 @@ namespace geometric_primitives
     void updateGeometricPrimitive(const std::string& name, 
                                   const std::vector<double>& parameters);
 
-    //void redrawAllPrimitives();
     void addDependencyToPrimitive(const std::string& name, const std::string& id);
     void removeDependency(const std::string& id);
-    void acceptVisitor(const GeometricPrimitiveVisitor& visitor);
+    void acceptVisitor(GeometricPrimitiveVisitor& visitor, const std::string& primitive_name = "");
 
   private:
     GeometricPrimitiveMap(const GeometricPrimitiveMap& other) = delete;

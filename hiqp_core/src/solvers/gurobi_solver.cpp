@@ -44,7 +44,6 @@ namespace hiqp
     env_.set(GRB_IntParam_DualReductions, DUAL_REDUCTIONS);
   }
 
-  /// \bug Empty stages are ignored, and the lower ones gain a hierarchy rank 
   bool GurobiSolver::solve(std::vector<double>& solution) {
     if (stages_map_.empty())
       return false;
@@ -184,6 +183,7 @@ namespace hiqp
             solution.at(i) = x[i].get(GRB_DoubleAttr_X);
           for(unsigned int i=0; i<s_dim; i++)
             w_(s_acc_dim + i) = w[i].get(GRB_DoubleAttr_X);
+
         } catch(GRBException e) {
           std::cerr<<"In HQPSolver::solve(...): Gurobi exception with error code" <<e.getErrorCode()<<", and error message "<<e.getMessage().c_str()<<" when trying to extract the solution variables."<<std::endl;
           // model.write("/home/yumi/Desktop/model.lp");

@@ -35,7 +35,8 @@ add_service_files(FILES AddGeometricPrimitive.srv
                         RemoveGeometricPrimitive.srv
                         RemoveTask.srv
                         UpdateTask.srv
-                        ListAllTasks.srv)
+                        ListAllTasks.srv
+                        ListAllGeometricPrimitives.srv)
 
 generate_messages(DEPENDENCIES std_msgs
                                geometry_msgs

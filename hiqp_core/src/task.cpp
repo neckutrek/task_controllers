@@ -99,9 +99,11 @@ namespace hiqp {
 
   int Task::update(RobotStatePtr robot_state)
   {
-    if (!def_ || !dyn_) return -2;
+   /// \bug should allow consistency check - not done now to enable the sdf avoidance task
+   // if (!checkConsistency(robot_state)) return -1;
     if (def_->update(robot_state) != 0) return -2;
-    if (dyn_->update(robot_state, def_->e_, def_->J_) != 0) return -2;
+    if (dyn_->update(robot_state, def_->e_, def_->J_) != 0) return -3;
+    return 0;
    
     // DEBUG =============================================
     // std::cerr<<std::setprecision(2)<<"Update task '"<<getTaskName()<<"'"<<std::endl;

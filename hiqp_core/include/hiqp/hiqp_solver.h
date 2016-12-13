@@ -57,6 +57,7 @@ namespace hiqp
       StageMap::iterator it = stages_map_.find(priority_level);
 
       if (it == stages_map_.end()) {
+
         HiQPStage stage;
         stage.e_dot_star_ = e_dot_star;
         stage.J_ = J;

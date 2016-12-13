@@ -38,13 +38,13 @@ namespace geometric_primitives {
     GeometricPrimitiveVisitor() {}
     ~GeometricPrimitiveVisitor() noexcept {}
 
-    virtual void visit(std::shared_ptr<GeometricPoint> point) const = 0;
-    virtual void visit(std::shared_ptr<GeometricLine> line) const = 0;
-    virtual void visit(std::shared_ptr<GeometricPlane> plane) const = 0;
-    virtual void visit(std::shared_ptr<GeometricBox> box) const = 0;
-    virtual void visit(std::shared_ptr<GeometricCylinder> cylinder) const = 0;
-    virtual void visit(std::shared_ptr<GeometricSphere> sphere) const = 0;
-    virtual void visit(std::shared_ptr<GeometricFrame> frame) const = 0;
+    virtual void visit(std::shared_ptr<GeometricPoint> point) = 0;
+    virtual void visit(std::shared_ptr<GeometricLine> line) = 0;
+    virtual void visit(std::shared_ptr<GeometricPlane> plane) = 0;
+    virtual void visit(std::shared_ptr<GeometricBox> box) = 0;
+    virtual void visit(std::shared_ptr<GeometricCylinder> cylinder) = 0;
+    virtual void visit(std::shared_ptr<GeometricSphere> sphere) = 0;
+    virtual void visit(std::shared_ptr<GeometricFrame> frame) = 0;
 
   private:
     GeometricPrimitiveVisitor(const GeometricPrimitiveVisitor& other) = delete;

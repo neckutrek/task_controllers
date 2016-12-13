@@ -46,6 +46,7 @@
 #include <hiqp_msgs/AddGeometricPrimitive.h>
 #include <hiqp_msgs/RemoveGeometricPrimitive.h>
 #include <hiqp_msgs/RemoveAllGeometricPrimitives.h>
+#include <hiqp_msgs/ListAllGeometricPrimitives.h>
 
 #include <fstream>
 
@@ -88,6 +89,7 @@ namespace hiqp_ros
     bool addGeometricPrimitive(hiqp_msgs::AddGeometricPrimitive::Request& req, hiqp_msgs::AddGeometricPrimitive::Response& res);
     bool removeGeometricPrimitive(hiqp_msgs::RemoveGeometricPrimitive::Request& req, hiqp_msgs::RemoveGeometricPrimitive::Response& res);
     bool removeAllGeometricPrimitives(hiqp_msgs::RemoveAllGeometricPrimitives::Request& req, hiqp_msgs::RemoveAllGeometricPrimitives::Response& res);
+    bool listAllGeometricPrimitives(hiqp_msgs::ListAllGeometricPrimitives::Request& req, hiqp_msgs::ListAllGeometricPrimitives::Response& res);
 
     typedef std::map<unsigned int, hardware_interface::JointHandle > JointHandleMap;
 
@@ -116,6 +118,9 @@ namespace hiqp_ros
     ros::ServiceServer                                add_geomprim_service_;
     ros::ServiceServer                                remove_geomprim_service_;
     ros::ServiceServer                                remove_all_geomprims_service_;
+    ros::ServiceServer                                list_all_geomprims_service_;
+
+    std::mutex                                        service_mutex_; 
 
     std::shared_ptr<Visualizer>                       visualizer_;
     ROSVisualizer                                     ros_visualizer_;

@@ -85,6 +85,8 @@ namespace hiqp {
     inline void activateTask(const std::string& name) { task_map_.find(name)->second->setActive(true); }
     inline void deactivateTask(const std::string& name) { task_map_.find(name)->second->setActive(false); }
 
+    void renderPrimitives();
+
     int addGeometricPrimitive(const std::string& name,
                               const std::string& type,
                               const std::string& frame_id,
@@ -95,6 +97,8 @@ namespace hiqp {
     int removeGeometricPrimitive(std::string name);
 
     int removeAllGeometricPrimitives();
+
+    int listAllGeometricPrimitives();
 
     inline std::shared_ptr<GeometricPrimitiveMap> getGeometricPrimitiveMap() { return geometric_primitive_map_; }
 

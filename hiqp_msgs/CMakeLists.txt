@@ -24,6 +24,7 @@ find_package(catkin REQUIRED COMPONENTS message_generation
 
 add_message_files(FILES TaskMeasure.msg
                         TaskMeasures.msg
+                        PoseWithName.msg
                         StringArray.msg
                         Vector3d.msg)
 

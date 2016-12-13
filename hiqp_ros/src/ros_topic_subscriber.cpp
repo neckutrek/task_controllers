@@ -27,22 +27,23 @@
 #include <vector>
 
 #include <geometry_msgs/PoseStamped.h>
+#include <hiqp_msgs/PoseWithName.h>
 
 namespace hiqp_ros
 {
 
 template<>
-void ROSTopicSubscriber::topicCallback<geometry_msgs::PoseStamped>(const geometry_msgs::PoseStamped& msg) {
+void ROSTopicSubscriber::topicCallback<hiqp_msgs::PoseWithName>(const hiqp_msgs::PoseWithName& msg) {
 
-	double x = msg.pose.position.x;
+	double x = msg.pose.pose.position.x;
 	if (x > 0.55) x = 0.55;
 	if (x < 0) x = 0;
 
-	double y = msg.pose.position.y;
+	double y = msg.pose.pose.position.y;
 	if (y > 0.5) y = 0.5;
 	if (y < -0.5) y = -0.5;
 
-	double z = msg.pose.position.z;
+	double z = msg.pose.pose.position.z;
 	if (z > 0.55) z = 0.55;
 	if (z < 0.07) z = 0.07;
 
@@ -50,12 +51,18 @@ void ROSTopicSubscriber::topicCallback<geometry_msgs::PoseStamped>(const geometr
 	wintracker_frame_params.push_back(x);
 	wintracker_frame_params.push_back(y);
 	wintracker_frame_params.push_back(z);
-	wintracker_frame_params.push_back(msg.pose.orientation.w);
-	wintracker_frame_params.push_back(msg.pose.orientation.x);
-	wintracker_frame_params.push_back(msg.pose.orientation.y);
-	wintracker_frame_params.push_back(msg.pose.orientation.z);
-	task_manager_->getGeometricPrimitiveMap()
-	             ->updateGeometricPrimitive<GeometricFrame>("teleop_wintracker_frame", wintracker_frame_params);
+	wintracker_frame_params.push_back(msg.pose.pose.orientation.w);
+	wintracker_frame_params.push_back(msg.pose.pose.orientation.x);
+	wintracker_frame_params.push_back(msg.pose.pose.orientation.y);
+	wintracker_frame_params.push_back(msg.pose.pose.orientation.z);
+	if(msg.name == "left") { //left hardcoded horrible hack
+	    task_manager_->getGeometricPrimitiveMap()
+	             ->updateGeometricPrimitive<GeometricFrame>("teleop_left_frame", wintracker_frame_params);
+	} 
+	if(msg.name == "right") { //right hardcoded horrible hack
+	    task_manager_->getGeometricPrimitiveMap()
+	             ->updateGeometricPrimitive<GeometricFrame>("teleop_right_frame", wintracker_frame_params);
+	} 
 
 
 

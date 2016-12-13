@@ -32,6 +32,7 @@
 #include <hiqp_msgs/StringArray.h>
 
 #include <geometry_msgs/PoseStamped.h> // teleoperation magnet sensors
+#include <hiqp_msgs/PoseWithName.h> // teleoperation magnet sensors
 
 using hiqp::geometric_primitives::GeometricPrimitiveVisualizer;
 using hiqp::TaskMeasure;
@@ -302,8 +303,8 @@ void HiQPJointVelocityController::addAllTopicSubscriptions()
 {
   topic_subscriber_.init( &task_manager_ );
   
-  topic_subscriber_.addSubscription<geometry_msgs::PoseStamped>(
-    this->getControllerNodeHandle(), "/wintracker_rebase/pose", 100
+  topic_subscriber_.addSubscription<hiqp_msgs::PoseWithName>(
+    this->getControllerNodeHandle(), "/leap_hands/poses", 100
   );
 
   //topic_subscriber_.addSubscription<hiqp_msgs::Vector3d>(

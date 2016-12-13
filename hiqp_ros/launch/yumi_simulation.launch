@@ -19,7 +19,8 @@
   <arg name="use_sim_time" default="true"/>
   <arg name="gui" default="false"/>
   <arg name="headless" default="false"/>
-  <arg name="debug" default="true"/>
+  <arg name="debug" default="false"/>
+  <arg name="start_rviz" default="true"/>
 
   <arg unless="$(arg debug)" name="launch_prefix" value="" />
   <arg if="$(arg debug)" name="launch_prefix" value="gdb --ex run --args" />
@@ -65,6 +66,6 @@
     <remap from="/joint_states" to="/yumi/joint_states" />
   </node>
 
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find hiqp_ros)/launch/yumi.rviz"/>
+  <node if="$(arg start_rviz)" name="rviz" pkg="rviz" type="rviz" args="-d $(find hiqp_ros)/launch/yumi.rviz"/>
 
 </launch>

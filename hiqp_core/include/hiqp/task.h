@@ -61,7 +61,6 @@ namespace hiqp {
     void monitor() {if (def_) def_->monitor(); if (dyn_) dyn_->monitor();}
 
     /*! \brief Returns the task function performance values as a vector. */
-    /// \todo should be renamed to getTaskFunctionValue
     Eigen::VectorXd getValue() const      
       { if (def_) return def_->e_; else return Eigen::VectorXd(); }
 
@@ -74,7 +73,6 @@ namespace hiqp {
       { if (dyn_) return dyn_->e_dot_star_; else return Eigen::VectorXd(); }
 
     /*! \brief Returns the task types (leq/eq/geq task) for each dimension of the task space. Returns a vector or -1, 0 or 1 for leq, eq and geq tasks respectively. */
-    /// \todo Change from std::vector<int> to Eigen::VectorXd - should also be renamed to getTaskSenses()
     std::vector<int> getTaskTypes() const  
       { if (def_) return def_->task_types_; else return std::vector<int>(); }
 
@@ -90,6 +88,9 @@ namespace hiqp {
 
     int constructDefinition(const std::vector<std::string>& def_params);
     int constructDynamics(const std::vector<std::string>& dyn_params);
+
+    /// \brief Checks the consistency of the task definition and dynamics, i.e. the sizes of e, J, de*, task types, and number of joints of the robot
+    bool checkConsistency(RobotStatePtr robot_state);
 
     std::shared_ptr<TaskDefinition>          def_;
     std::shared_ptr<TaskDynamics>            dyn_;

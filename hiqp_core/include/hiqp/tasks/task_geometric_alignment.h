@@ -56,6 +56,9 @@ namespace tasks
     int align(std::shared_ptr<PrimitiveA> first, std::shared_ptr<PrimitiveB> second);
     int alignVectors(const KDL::Vector& v1, const KDL::Vector v2);
 
+    /// \brief This sets jacobian columns corresponding to non-writable joints to 0
+    void maskJacobian(RobotStatePtr robot_state);
+
     std::shared_ptr<KDL::TreeFkSolverPos_recursive>  fk_solver_pos_;
     std::shared_ptr<KDL::TreeJntToJacSolver>         fk_solver_jac_;
 

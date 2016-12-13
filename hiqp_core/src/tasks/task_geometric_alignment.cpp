@@ -14,15 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-/*
- * \file   task_geometric_alignment.cpp
- * \author Marcus A Johansson (marcus.adam.johansson@gmail.com)
- * \date   July, 2016
- * \brief  Brief description of file.
- *
- * Detailed description of file.
- */
-
 #include <hiqp/tasks/task_geometric_alignment.h>
 
 #include <hiqp/geometric_primitives/geometric_point.h>
@@ -38,18 +29,10 @@
 #include <iostream>
 #include <cmath>
 
-/// \todo Implement activation zones for all tasks
-
-
-
 namespace hiqp
 {
 namespace tasks
 {
-
-
-
-
 
 template<>
 int TaskGeometricAlignment<GeometricLine, GeometricLine>::align

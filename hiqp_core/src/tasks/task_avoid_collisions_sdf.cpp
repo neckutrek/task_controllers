@@ -93,6 +93,12 @@ namespace hiqp
       performance_measures_.resize(0);
       task_types_.insert(task_types_.begin(), n_dimensions_, 0); // -1 leq, 0 eq, 1 geq
 
+      std::cerr<<"TaskAvoidCollisionsSDF::init(.)"<<std::endl;
+      std::cerr<<"size e: "<<e_.size()<<std::endl;
+      std::cerr<<"size J: "<<J_.rows()<<" "<<J_.cols()<<std::endl;
+      std::cerr<<"size task_types: "<<task_types_.size()<<std::endl;
+
+
       fk_solver_pos_ = std::make_shared<KDL::TreeFkSolverPos_recursive>(robot_state->kdl_tree_);
       fk_solver_jac_ = std::make_shared<KDL::TreeJntToJacSolver>(robot_state->kdl_tree_);
 
@@ -102,8 +108,8 @@ namespace hiqp
       return 0;
     }
     //==================================================================================
+    /// \bug Should rewrite to survive consistency check
     int TaskAvoidCollisionsSDF::update(RobotStatePtr robot_state) {
-
 
       e_.resize(0);
       J_.resize(0, robot_state->getNumJoints());

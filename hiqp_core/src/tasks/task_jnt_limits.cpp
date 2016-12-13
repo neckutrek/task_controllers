@@ -34,6 +34,19 @@ namespace tasks
       return -1;
     }
 
+    link_frame_name_ = parameters.at(1);
+    link_frame_q_nr_ = kdl_getQNrFromLinkName(robot_state->kdl_tree_, link_frame_name_);
+
+    if (link_frame_q_nr_ < 0) {
+      printHiqpWarning("TaskJntLimits::init, couldn't find joint '" + link_frame_name_ + "'! Initialization failed.");
+      return -2;
+    }
+
+    if (!robot_state->isQNrWritable(link_frame_q_nr_)) {
+      printHiqpWarning("TaskJntLimits::init, the joint '" + link_frame_name_ + "' is not writable! Initialization failed.");
+      return -3;
+    }
+
     unsigned int n_joints = robot_state->getNumJoints();
     e_.resize(4);
     J_.resize(4, n_joints);
@@ -45,8 +58,7 @@ namespace tasks
     task_types_.at(2) = 1; // > lower bound
     task_types_.at(3) = -1; // < upper bound
 
-    link_frame_name_ = parameters.at(1);
-    link_frame_q_nr_ = kdl_getQNrFromLinkName(robot_state->kdl_tree_, link_frame_name_);
+    
     jnt_lower_bound_ = std::stod( parameters.at(2) );
     jnt_upper_bound_ = std::stod( parameters.at(3) );
 

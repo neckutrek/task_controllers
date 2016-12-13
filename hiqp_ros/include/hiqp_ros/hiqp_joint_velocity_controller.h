@@ -62,7 +62,7 @@ namespace hiqp_ros
     ~HiQPJointVelocityController() noexcept;
     
     void initialize();
-    void setJointControls(Eigen::VectorXd& u);
+    void computeControls(Eigen::VectorXd& u);
 
   private:
     HiQPJointVelocityController(const HiQPJointVelocityController& other) = delete;
@@ -70,9 +70,10 @@ namespace hiqp_ros
     HiQPJointVelocityController& operator=(const HiQPJointVelocityController& other) = delete;
     HiQPJointVelocityController& operator=(HiQPJointVelocityController&& other) noexcept = delete;
 
-    void performMonitoring();
-    /// \todo rename to loadPublishRate
-    int loadFps();
+    void monitorTasks();
+    void renderPrimitives();
+
+    void loadRenderingParameters();
     int loadAndSetupTaskMonitoring();
     void advertiseAllServices();
     void addAllTopicSubscriptions();
@@ -91,13 +92,17 @@ namespace hiqp_ros
     typedef std::map<unsigned int, hardware_interface::JointHandle > JointHandleMap;
 
     bool                                              is_active_;
-    double                                            fps_; /// \todo rename to publish_rate_
-    hiqp::HiQPTimePoint                               last_sampling_time_;
-    double                                            time_since_last_sampling_;
+
+    //double                                            desired_visualization_publishing_time_;
+    //hiqp::HiQPTimePoint                               last_visualization_publishing_time_;
+    //double                                            time_since_last_visualization_publishing_;
 
     bool                                              monitoring_active_;
     double                                            monitoring_publish_rate_;
     ros::Time                                         last_monitoring_update_;
+
+    double                                            rendering_publish_rate_;
+    ros::Time                                         last_rendering_update_;
 
     ros::Publisher                                    monitoring_pub_;
 

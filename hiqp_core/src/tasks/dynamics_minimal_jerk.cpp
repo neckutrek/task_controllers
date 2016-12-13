@@ -27,12 +27,17 @@ namespace tasks
                                 RobotStatePtr robot_state,
                                 const Eigen::VectorXd& e_initial,
                                 const Eigen::VectorXd& e_final) {
-    if (parameters.size() != 3)
+    int size = parameters.size();
+    if (size != 3) {
+      printHiqpWarning("TDynMinimalJerk requires 3 parameters, got " 
+        + std::to_string(size) + "! Initialization failed!");
       return -1;
+    }
 
     performance_measures_.resize(e_initial.rows());
+    e_dot_star_.resize(e_initial.rows());
 
-    time_start_ = robot_state->sampling_time_;
+    time_start_ = robot_state->sampling_time_point_;
 
     total_duration_ = std::stod( parameters.at(1) );
     gain_ = std::stod( parameters.at(2) );
@@ -49,7 +54,7 @@ namespace tasks
   int DynamicsMinimalJerk::update(RobotStatePtr robot_state,
                                   const Eigen::VectorXd& e,
                                   const Eigen::MatrixXd& J) {
-    double tau = (robot_state->sampling_time_ - time_start_).toSec() / total_duration_;
+    double tau = (robot_state->sampling_time_point_ - time_start_).toSec() / total_duration_;
 
     if (tau > 1) {
       e_dot_star_ = 0*e;

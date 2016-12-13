@@ -28,13 +28,10 @@ namespace hiqp {
 TaskManager::TaskManager(std::shared_ptr<Visualizer> visualizer)
 : visualizer_(visualizer) {
   geometric_primitive_map_ = std::make_shared<GeometricPrimitiveMap>();
-
-  solver_ = new GurobiSolver();
+  solver_ = std::make_shared<GurobiSolver>();
 }
 
-TaskManager::~TaskManager() noexcept {
-  delete solver_;
-}
+TaskManager::~TaskManager() noexcept {}
 
 void TaskManager::init(unsigned int n_controls) {
   n_controls_ = n_controls; 
@@ -75,13 +72,14 @@ bool TaskManager::getVelocityControls(RobotStatePtr robot_state,
   return true;
 }
 
-void TaskManager::getTaskMonitoringData(std::vector<TaskMonitoringData>& data) {
+void TaskManager::getTaskMeasures(std::vector<TaskMeasure>& data) {
+  data.clear();
   for (auto&& kv : task_map_) {
     kv.second->monitor();
-    data.push_back(TaskMonitoringData(kv.second->getTaskName(), 
-                                      kv.second->getValue(),
-                                      kv.second->getDynamics(),
-                                      kv.second->getPerformanceMeasures()));
+    data.push_back(TaskMeasure(kv.second->getTaskName(), 
+                               kv.second->getValue(),
+                               kv.second->getDynamics(),
+                               kv.second->getPerformanceMeasures()));
   }
 }
 

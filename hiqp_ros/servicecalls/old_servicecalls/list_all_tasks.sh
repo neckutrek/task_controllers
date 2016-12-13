@@ -1,1 +1,0 @@
-rosservice call /yumi/hiqp_kinematics_controller/list_all_tasks

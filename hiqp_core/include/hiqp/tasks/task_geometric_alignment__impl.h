@@ -135,12 +135,22 @@ namespace tasks
       return -4;
     }
     
-    return align(primitive_a_, primitive_b_);
+    align(primitive_a_, primitive_b_);
+    maskJacobian(robot_state);
+    return 0;
   }
 
   template<typename PrimitiveA, typename PrimitiveB>
   int TaskGeometricAlignment<PrimitiveA, PrimitiveB>::monitor() {
     return 0;
+  }
+
+  template<typename PrimitiveA, typename PrimitiveB>
+  void TaskGeometricAlignment<PrimitiveA, PrimitiveB>::maskJacobian(RobotStatePtr robot_state) {
+    for (unsigned int c=0; c<robot_state->getNumJoints(); ++c) {
+      if (!robot_state->isQNrWritable(c))
+        J_.col(c).setZero();
+    }
   }
 
   template<typename PrimitiveA, typename PrimitiveB>

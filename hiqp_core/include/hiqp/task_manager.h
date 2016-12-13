@@ -34,10 +34,9 @@ namespace hiqp {
 
   /*! \brief A structure used to get data out of tasks that is to be monitored.
    *  \author Marcus A Johansson */
-  /// \todo This data structure copies too much data! Use const-references?
-  class TaskMonitoringData {
+  class TaskMeasure {
   public:
-    TaskMonitoringData(const std::string& task_name,
+    TaskMeasure(const std::string& task_name,
                        const Eigen::VectorXd& e,
                        const Eigen::VectorXd& de,
                        const Eigen::VectorXd& pm)
@@ -64,7 +63,7 @@ namespace hiqp {
 
     /*! \brief Retrieves the performance measures for every active task along
      *         with the task's name and unique identifier. */
-    void getTaskMonitoringData(std::vector<TaskMonitoringData>& data);
+    void getTaskMeasures(std::vector<TaskMeasure>& data);
 
     /*! \brief Adds a new task to the task manager or updates an existing one
      *  \return 0 if the task creation was successful,
@@ -108,7 +107,7 @@ namespace hiqp {
 
     TaskMap                                      task_map_;
 
-    HiQPSolver*                                  solver_;
+    std::shared_ptr<HiQPSolver>                  solver_;
 
     unsigned int                                 n_controls_;
 

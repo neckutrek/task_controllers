@@ -38,7 +38,8 @@ namespace hiqp {
   /*! \brief Holds the state of the robot (sampling time, kdl tree, joint positions and velocities) 
    *  \author Marcus A Johansson */
   struct RobotState {
-    HiQPTimePoint                 sampling_time_;
+    HiQPTimePoint                 sampling_time_point_;
+    double                        sampling_time_;
     KDL::Tree                     kdl_tree_;
     KDL::JntArrayVel              kdl_jnt_array_vel_;
     KDL::JntArray                 kdl_effort_;

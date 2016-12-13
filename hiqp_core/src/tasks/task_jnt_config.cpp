@@ -43,6 +43,11 @@ int TaskJntConfig::init(const std::vector<std::string>& parameters,
     return -2;
   }
 
+  if (!robot_state->isQNrWritable(joint_q_nr_)) {
+    printHiqpWarning("TaskJntConfig::init, the joint '" + link_name_ + "' is not writable! Initialization failed.");
+    return -3;
+  }
+
   desired_configuration_ = std::stod( parameters.at(2) );
 
   unsigned int n_joints = robot_state->getNumJoints();

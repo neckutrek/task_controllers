@@ -55,6 +55,13 @@ namespace tasks
     DynamicsFirstOrder& operator=(DynamicsFirstOrder&& other) noexcept = delete;
 
     double lambda_;
+
+    // Only when the task function value is within +/- the influence zone value
+    // is this dynamics applied. Or else the desired task dynamics returned is +/- infinity.
+    // This is usable for obstacle avoidance tasks when complying with the avoidance
+    // is meant to not influence the behaviour of other tasks.
+    double influence_zone_;
+
   };
 
 } // namespace tasks

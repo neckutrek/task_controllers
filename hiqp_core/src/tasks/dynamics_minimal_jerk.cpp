@@ -54,6 +54,7 @@ namespace tasks
   int DynamicsMinimalJerk::update(RobotStatePtr robot_state,
                                   const Eigen::VectorXd& e,
                                   const Eigen::MatrixXd& J) {
+    e_dot_star_.resize(e.size());
     double tau = (robot_state->sampling_time_point_ - time_start_).toSec() / total_duration_;
 
     if (tau > 1) {

@@ -3,7 +3,7 @@ rosservice call /gazebo/set_physics_properties '{time_step: 0.001, max_update_ra
 
 rosservice call /yumi/hiqp_joint_velocity_controller/set_task \
 "name: 'task_teleop_init'
-priority: 3
+priority: 2
 visible: 1
 active: 1
 def_params: ['TDefFullPose', '-1.8', '0.26', '-1.15', '0.72', '0.0', '0.0', '0.0', '0.35', '-1.0', '-1.88', '1.1', '1.59', '0.6', '1.39']

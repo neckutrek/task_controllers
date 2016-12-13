@@ -32,6 +32,9 @@
     <arg name="headless" value="$(arg headless)"/>
   </include>
 
+  <!--Launch the precomputed map-->
+  <include file="$(find grasp_planner)/launch/offline_yumi.launch"/>
+
   <param name="robot_description" 
          command="$(find xacro)/xacro.py '$(find yumi_description)/urdf/yumi.urdf.xacro' prefix:=$(arg hardware_interface)" />
 

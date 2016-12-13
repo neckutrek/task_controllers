@@ -25,11 +25,15 @@
 #include <kdl/treefksolverpos_recursive.hpp>
 #include <kdl/treejnttojacsolver.hpp>
 
+#include <visualization_msgs/MarkerArray.h>
+#include <visualization_msgs/Marker.h>
+#include <ros/ros.h>
+
 namespace hiqp
 {
   namespace tasks
   {
-      typedef std::vector<Eigen::Vector3d,Eigen::aligned_allocator<Eigen::Vector3d> > SamplesVector;
+    typedef std::vector<Eigen::Vector3d,Eigen::aligned_allocator<Eigen::Vector3d> > SamplesVector;
 
     /*! \brief A struct holding Jacobian and end-effector point - used for forward kinematics.
      *  \author Robert Krug */  
@@ -45,8 +49,8 @@ namespace hiqp
      *  \author Robert Krug */  
     class TaskAvoidCollisionsSDF : public TaskDefinition {
     public:
-    TaskAvoidCollisionsSDF(std::shared_ptr<GeometricPrimitiveMap> geom_prim_map,
-			   std::shared_ptr<Visualizer> visualizer);
+      TaskAvoidCollisionsSDF(std::shared_ptr<GeometricPrimitiveMap> geom_prim_map,
+			     std::shared_ptr<Visualizer> visualizer);
       ~TaskAvoidCollisionsSDF() noexcept; 
 
       int init(const std::vector<std::string>& parameters,
@@ -72,6 +76,7 @@ namespace hiqp
       void appendTaskJacobian(const std::vector<KinematicQuantities> kin_q_list ,const SamplesVector& gradients );
       void appendTaskFunction(const std::shared_ptr<geometric_primitives::GeometricPrimitive>& primitive, const std::vector<KinematicQuantities> kin_q_list, const SamplesVector& gradients);
 
+
       std::shared_ptr<KDL::TreeFkSolverPos_recursive>  fk_solver_pos_;
       std::shared_ptr<KDL::TreeJntToJacSolver>         fk_solver_jac_;
 
@@ -79,6 +84,12 @@ namespace hiqp
       std::string root_frame_id_;
       /*! Interface to the SDF map*/
       std::shared_ptr<hiqp::CollisionCheckerBase> collision_checker_;
+
+      /// \todo should change it to a proper task visualizer
+      void publishGradientVisualization(const SamplesVector& gradients, const SamplesVector& test_pts);
+      ros::Publisher grad_vis_pub_;	
+      visualization_msgs::MarkerArray grad_markers_;
+      ros::NodeHandle nh_;
     };
 
   } // namespace tasks

@@ -19,6 +19,8 @@
 #include <hiqp_collision_check/sdf_collision_checker.h>
 #include <iostream>
 
+#define SAFETY_DISTANCE 0.005 //distance added to the gradient norm to act as a safety margin
+
 namespace hiqp
 {
   namespace tasks
@@ -40,11 +42,6 @@ namespace hiqp
 
     int TaskAvoidCollisionsSDF::init(const std::vector<std::string>& parameters,
 				     RobotStatePtr robot_state) {
-      //   std::cout<<"printing parameters:"<<std::endl;
-      //   for (int i=0; i<parameters.size();i++)
-      //     {
-      //       std::cout<<parameters.at(i)<<std::endl;
-      // }
       int size = parameters.size();
       if (size < 2) {
 	printHiqpWarning("TaskAvoidCollisionsSDF requires at least 2 parameters, got " 
@@ -91,20 +88,20 @@ namespace hiqp
 	}
 
       performance_measures_.resize(0);
-      task_types_.insert(task_types_.begin(), n_dimensions_, 0); // -1 leq, 0 eq, 1 geq
+      task_types_.insert(task_types_.begin(), n_dimensions_, 1); // -1 leq, 0 eq, 1 geq
 
-      std::cerr<<"TaskAvoidCollisionsSDF::init(.)"<<std::endl;
-      std::cerr<<"size e: "<<e_.size()<<std::endl;
-      std::cerr<<"size J: "<<J_.rows()<<" "<<J_.cols()<<std::endl;
-      std::cerr<<"size task_types: "<<task_types_.size()<<std::endl;
-
+      //DEBUG ===========================================
+      // std::cerr<<"TaskAvoidCollisionsSDF::init(.)"<<std::endl;
+      // std::cerr<<"size e: "<<e_.size()<<std::endl;
+      // std::cerr<<"size J: "<<J_.rows()<<" "<<J_.cols()<<std::endl;
+      // std::cerr<<"size task_types: "<<task_types_.size()<<std::endl;
+      //DEBUG END ===========================================
 
       fk_solver_pos_ = std::make_shared<KDL::TreeFkSolverPos_recursive>(robot_state->kdl_tree_);
       fk_solver_jac_ = std::make_shared<KDL::TreeJntToJacSolver>(robot_state->kdl_tree_);
 
       root_frame_id_=robot_state->kdl_tree_.getRootSegment()->second.segment.getName();
-
-
+     grad_vis_pub_ = nh_.advertise<visualization_msgs::MarkerArray>( "gradient_marker", 1 );
       return 0;
     }
     //==================================================================================
@@ -113,7 +110,6 @@ namespace hiqp
 
       e_.resize(0);
       J_.resize(0, robot_state->getNumJoints());
-
 
       for(unsigned int i=0; i<primitives_.size();i++)
 	{
@@ -125,40 +121,32 @@ namespace hiqp
 	      return -2;
 	    }
 
-	  //get the gradient vectors associated with the current primitive from the SDF map
-
+	  //get the gradient vectors associated with the ee points of the current primitive from the SDF map
 	  SamplesVector test_pts;
 	  for (unsigned int j=0; j<kin_q_list.size(); j++)
 	    {
 	      Eigen::Vector3d p(kin_q_list[j].ee_p_.x(),kin_q_list[j].ee_p_.y(),kin_q_list[j].ee_p_.z());
 	      test_pts.push_back(p);
 	    }
-
-	  std::cerr<<"Testing collision checker with root frame: "<<root_frame_id_<<std::endl;
-	  std::cerr<<"Test points: "<<std::endl;
-	  for (int k=0; k<test_pts.size();k++)
-	    std::cerr<<test_pts[k].transpose()<<" ";
-	  std::cerr<<std::endl;
-
 	  SamplesVector gradients;
-
 	  if(!collision_checker_->obstacleGradientBulk(test_pts, gradients, root_frame_id_))
 	    {
 	      printHiqpWarning("TaskAvoidCollisionsSDF::update, collision checker failed.");
 	      return -2;
 	    }
-
-	  //HAAAAACK TESTING 
-	  // Eigen::Vector3d g=Eigen::Vector3d(0, 0, 0)-test_pts[0];
-          // gradients.push_back(g);
-
-	  std::cerr<<"computed gradients: "<<std::endl;
-	  for(int k=0; k<gradients.size();k++)
-	    std::cerr<<gradients[k].transpose()<<std::endl;
-	  std::cerr<<std::endl;
-	  //HAAAAACK TESTING END
-
 	  assert(gradients.size() > 0); //make sure a gradient was found
+
+	  //DEBUG ====================================
+	  // for(int k=0; k<gradients.size();k++)
+	  //   {
+	  //     if(!collision_checker_->isValid(gradients[k]))
+	  // 	continue;
+
+	  //       std::cerr<<"Collision checker test point: "<<test_pts[k].transpose()<<std::endl;
+	  //     std::cerr<<"Collision checker computed gradient: "<<gradients[k].transpose()<<", norm: "<<gradients[k].norm()<<std::endl;
+	  //   }
+	  publishGradientVisualization(gradients, test_pts);
+	  //DEBUG END =====================================
 
 	  //compute the task jacobian for the current geometric primitive
 	  appendTaskJacobian(kin_q_list, gradients);
@@ -207,19 +195,21 @@ namespace hiqp
     	  //check if a gradient to an obstacle is valid
     	  if(!collision_checker_->isValid(gradient))
     	    {
-	      /// \todo this implicitly assumes that e*(e=0) = 0!
+	      /// \bug this implicitly assumes that e*(e=0) = 0!
     	      e_(e_.size()-1) = 0.0; //insert zero
     	      continue;
     	    }
 
+	  double d=gradient.norm()-SAFETY_DISTANCE;
     	  if(strcmp(primitive->getType().c_str(),"point")==0)
     	    {
-    	      e_(e_.size()-1) = gradient.norm();  //append the gradient length to the task function vector
+    	      e_(e_.size()-1) = d;  //append the gradient length to the task function vector
+
     	    }
     	  else if(strcmp(primitive->getType().c_str(),"sphere")==0)
     	    {
     	      std::shared_ptr<GeometricSphere> sphere(std::static_pointer_cast<GeometricSphere>(primitive)); 
-    	      e_(e_.size()-1) = gradient.norm()-sphere->getRadius();
+    	      e_(e_.size()-1) = d-sphere->getRadius();
     	    }
     	  else
 	    {
@@ -231,6 +221,8 @@ namespace hiqp
       //DEBUG===============================
       //std::cerr<<"Task function value vector: "<<e_.transpose()<<std::endl;
       //DEBUG END===============================
+      // if(e_(0)<0.0)
+      // 	  ROS_WARN("negative e: %f",e_(0));
     }
     //==================================================================================
     int TaskAvoidCollisionsSDF::monitor() {
@@ -325,6 +317,50 @@ namespace hiqp
       }
 
       return 0;
+    }
+    //==================================================================================
+    void TaskAvoidCollisionsSDF::publishGradientVisualization(const SamplesVector& gradients, const SamplesVector& test_pts)
+    {
+      assert(gradients.size()==test_pts.size());
+      grad_markers_.markers.clear();
+      for(unsigned int i=0;i<gradients.size();i++)
+	{
+	  if(!collision_checker_->isValid(gradients[i]))
+	    continue;
+
+          Eigen::Vector3d grad = gradients[i];
+          Eigen::Vector3d test_pt = test_pts[i];
+	  visualization_msgs::Marker  g_marker;
+          g_marker.ns = "gradients";
+	  g_marker.header.frame_id = root_frame_id_;
+	  g_marker.header.stamp = ros::Time::now();
+	  g_marker.type = visualization_msgs::Marker::ARROW;
+	  g_marker.action = visualization_msgs::Marker::ADD;
+          g_marker.lifetime = ros::Duration(0);
+	  g_marker.id = grad_markers_.markers.size();
+
+	  geometry_msgs::Point start, end;
+	  //grad = 10*grad;
+	  start.x = test_pt(0);
+	  start.y = test_pt(1);
+	  start.z = test_pt(2);
+	  end.x = test_pt(0) + grad(0);
+	  end.y = test_pt(1) + grad(1);
+	  end.z = test_pt(2) + grad(2);
+	  g_marker.points.push_back(start);
+	  g_marker.points.push_back(end);
+
+	  g_marker.scale.x = 0.003;
+	  g_marker.scale.y = 0.005;
+	  g_marker.scale.z = 0.005;
+	  g_marker.color.r = 1.0;
+	  g_marker.color.g = 0.0;
+	  g_marker.color.b = 1.0;
+	  g_marker.color.a = 1.0;
+	  grad_markers_.markers.push_back(g_marker);
+	}
+      //publish
+     grad_vis_pub_.publish(grad_markers_);
     }
     //==================================================================================
   } // namespace tasks

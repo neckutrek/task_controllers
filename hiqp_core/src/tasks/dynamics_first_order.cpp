@@ -52,6 +52,7 @@ namespace tasks
   int DynamicsFirstOrder::update(RobotStatePtr robot_state,
                                  const Eigen::VectorXd& e,
                                  const Eigen::MatrixXd& J) {
+    e_dot_star_.resize(e.size());
     for (int i=0; i<e_dot_star_.size(); ++i) {
       if (e(i) >= -influence_zone_ && e(i) <= influence_zone_) {
         e_dot_star_(i) = -lambda_ * e(i);

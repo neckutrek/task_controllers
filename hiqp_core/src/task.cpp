@@ -106,6 +106,7 @@ namespace hiqp {
     // DEBUG =============================================
     // std::cerr<<std::setprecision(2)<<"Update task '"<<getTaskName()<<"'"<<std::endl;
     // std::cerr<<"J_t:"<<std::endl<<def_->J_<<std::endl;
+    // std::cerr<<"e: "<<def_->e_.transpose()<<std::endl;
     // std::cerr<<"signs: ";
     // for(int i=0; i<def_->task_types_.size();i++)
     //   std::cerr<<def_->task_types_[i]<<" ";

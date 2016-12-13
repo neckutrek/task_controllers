@@ -167,7 +167,6 @@ bool SDFCollisionCheck::obstacleGradientBulk (const CollisionCheckerBase::Sample
     if(!this->isActive()) return false;
     if(!validMap) return false;
 
-
     //if a new frame_id, check on TF for a transformation to the correct frame and buffer
     if(frame_id != "") {
 	if(frame_id != request_frame_id) {

@@ -37,7 +37,8 @@ namespace hiqp
     {
       std::string frame_id_;
       KDL::Jacobian ee_J_;
-      KDL::Frame ee_pose_;
+      KDL::Frame ee_frame_;
+      KDL::Vector ee_p_;
     };
     //==============================================================================================
     /*! \brief A task definition that allows avoidance of geometric primitives on the manipulator with the environment given as a SDF map.
@@ -45,9 +46,8 @@ namespace hiqp
     class TaskAvoidCollisionsSDF : public TaskDefinition {
     public:
     TaskAvoidCollisionsSDF(std::shared_ptr<GeometricPrimitiveMap> geom_prim_map,
-			   std::shared_ptr<Visualizer> visualizer)
-      : TaskDefinition(geom_prim_map, visualizer) {}
-      ~TaskAvoidCollisionsSDF() noexcept {}
+			   std::shared_ptr<Visualizer> visualizer);
+      ~TaskAvoidCollisionsSDF() noexcept; 
 
       int init(const std::vector<std::string>& parameters,
 	       RobotStatePtr robot_state);
@@ -70,7 +70,7 @@ namespace hiqp
       int forwardKinematics(KinematicQuantities& kin_q, RobotStatePtr const robot_state)const;
 
       void appendTaskJacobian(const std::vector<KinematicQuantities> kin_q_list ,const SamplesVector& gradients );
-      void appendTaskFunction(const std::string& primitive_type, const std::vector<KinematicQuantities> kin_q_list, const SamplesVector& gradients);
+      void appendTaskFunction(const std::shared_ptr<geometric_primitives::GeometricPrimitive>& primitive, const std::vector<KinematicQuantities> kin_q_list, const SamplesVector& gradients);
 
       std::shared_ptr<KDL::TreeFkSolverPos_recursive>  fk_solver_pos_;
       std::shared_ptr<KDL::TreeJntToJacSolver>         fk_solver_jac_;

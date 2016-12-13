@@ -56,7 +56,7 @@ namespace hiqp {
     inline unsigned int getDimensions()                    { if (def_) return def_->getDimensions(); else return 0; }
 
     /*! \brief Recomputes the task performance value, jacobian and its dynamics. */
-    void update(RobotStatePtr robot_state);
+    int update(RobotStatePtr robot_state);
 
     void monitor() {if (def_) def_->monitor(); if (dyn_) dyn_->monitor();}
 

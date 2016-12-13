@@ -53,7 +53,11 @@ bool TaskManager::getVelocityControls(RobotStatePtr robot_state,
 
   for (auto&& kv : task_map_) {
     if (kv.second->getActive()) {
-      kv.second->update(robot_state);
+      if(kv.second->update(robot_state) !=0){
+	printHiqpWarning("Task '" + kv.second->getTaskName() + "' could not be updated and will be ignored while solving for controls!");
+	continue;
+      }
+
       solver_->appendStage(kv.second->getPriority(), 
                            kv.second->getDynamics(), 
                            kv.second->getJacobian(),

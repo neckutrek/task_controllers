@@ -81,22 +81,22 @@ namespace hiqp {
     return (init_def != 0 || init_dyn != 0 ? -5 : 0);
   }
 
-  void Task::update(RobotStatePtr robot_state)
+  int Task::update(RobotStatePtr robot_state)
   {
-    /// \bug No indication is given if def_->update(.) returns unsuccessful. This can lead to observably bad behavior when calling the solver, since the task function value/jacobian and/or task_types_ might not have been set properly 
-    if (!def_ || !dyn_) return;
-    if (def_->update(robot_state) != 0) return;
-    dyn_->update(robot_state, def_->e_, def_->J_);
+    if (!def_ || !dyn_) return -2;
+    if (def_->update(robot_state) != 0) return -2;
+    if (dyn_->update(robot_state, def_->e_, def_->J_) != 0) return -2;
    
     // DEBUG =============================================
-    std::cerr<<std::setprecision(2)<<"Update task '"<<getTaskName()<<"'"<<std::endl;
-    std::cerr<<"J_t:"<<std::endl<<def_->J_<<std::endl;
-    std::cerr<<"signs: ";
-    for(int i=0; i<def_->task_types_.size();i++)
-      std::cerr<<def_->task_types_[i]<<" ";
+    // std::cerr<<std::setprecision(2)<<"Update task '"<<getTaskName()<<"'"<<std::endl;
+    // std::cerr<<"J_t:"<<std::endl<<def_->J_<<std::endl;
+    // std::cerr<<"signs: ";
+    // for(int i=0; i<def_->task_types_.size();i++)
+    //   std::cerr<<def_->task_types_[i]<<" ";
 
-    std::cerr<<std::endl<<"de*: "<<dyn_->e_dot_star_.transpose()<<std::endl;
+    // std::cerr<<std::endl<<"de*: "<<dyn_->e_dot_star_.transpose()<<std::endl;
     // DEBUG END ==========================================
+    return 0;
   }
 
   int Task::constructDefinition(const std::vector<std::string>& def_params)

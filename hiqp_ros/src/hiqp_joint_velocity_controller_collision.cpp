@@ -28,19 +28,19 @@ void HiQPJointVelocityControllerCollision::setJointControls(Eigen::VectorXd& u) 
     
     // for testing, ask a random point within map for a gradient
     Eigen::Vector3d pt;
-    pt<<0,(double)ctr/1000. - 1,-0.03;
+    pt<<0.4,0.0,(double)ctr/1000. - 1;
     samples.push_back(pt);
 
     if(ctr == 1999) {
     
-	if(collisionChecker->obstacleGradientBulk(samples,gradients)) {
+	if(collisionChecker->obstacleGradientBulk(samples,gradients,"world")) {
 	    for(int i=0; i<samples.size(); i++) {
 		Eigen::Vector3d grad = gradients[i];
 		pt = samples[i];
 		
 		visualization_msgs::Marker pt_marker, g_marker;
 		pt_marker.ns = "points"; 
-		pt_marker.header.frame_id = "sdf_map_frame";
+		pt_marker.header.frame_id = "world";
 		pt_marker.header.stamp = ros::Time::now();
 		pt_marker.type = visualization_msgs::Marker::SPHERE;
 		pt_marker.action = visualization_msgs::Marker::ADD;
@@ -76,7 +76,7 @@ void HiQPJointVelocityControllerCollision::setJointControls(Eigen::VectorXd& u) 
 		    //Eigen::Quaterniond q;
 		    //q.setFromTwoVectors(Eigen::Vector3d::UnitX() , grad);
 
-		    g_marker.header.frame_id = "sdf_map_frame";
+		    g_marker.header.frame_id = "world";
 		    g_marker.header.stamp = ros::Time::now();
 		    g_marker.ns = "gradient";
 		    g_marker.type =  visualization_msgs::Marker::ARROW;

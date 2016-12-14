@@ -164,7 +164,7 @@ namespace tasks
 
     e_(0) = d - std::cos(delta_);
 
-    //std::cout << "e = " << e_(0) << "\n";
+    std::cerr << "e = " << e_(0) << "\n";
 
     KDL::Vector v = v1 * v2;    // v = v1 x v2
 

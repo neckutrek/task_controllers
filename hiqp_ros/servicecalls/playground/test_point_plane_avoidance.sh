@@ -23,4 +23,4 @@ priority: 1
 visible: 1
 active: 1
 def_params: ['TDefGeomProj', 'point', 'plane', 'gripper_r_base_avoidance_point > floor_avoidance_plane']
-dyn_params: ['TDynFirstOrder', '1.0']"
+dyn_params: ['TDynFirstOrderCubic', '10000.0']"

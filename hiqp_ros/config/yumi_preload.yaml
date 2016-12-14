@@ -98,64 +98,32 @@ yumi:
         color: [1.0, 0.0, 0.0, 0.6]
         parameters: [-0.036, -0.035, 0.135]
 
-    #   #####      OTHER PRIMITIVES    #####
-    #   # - name: experiment_gripper_point
-    #   #   type: point 
-    #   #   frame_id: gripper_r_base
-    #   #   visible: true
-    #   #   color: [0.0, 0.0, 1.0, 0.6]
-    #   #   parameters: [0.0, 0.0, 0.1]
-    #   # - name: experiment_gripper_line_z
-    #   #   type: line 
-    #   #   frame_id: gripper_r_base
-    #   #   visible: true
-    #   #   color: [0.0, 0.0, 1.0, 0.6]
-    #   #   parameters: [0.0, 0.0, 1.0, 0.0, 0.0, 0.1]
-    #   # - name: experiment_gripper_line_y
-    #   #   type: line 
-    #   #   frame_id: gripper_r_base
-    #   #   visible: true
-    #   #   color: [1.0, 0.0, 1.0, 0.6]
-    #   #   parameters: [0.0, 1.0, 0.0, 0.0, 0.0, 0.0]
-    #   # - name: experiment_plane
-    #   #   type: plane 
-    #   #   frame_id: world
-    #   #   visible: true
-    #   #   color: [1.0, 1.0, 1.0, 0.6]
-    #   #   parameters: [0.0, 0.0, 1.0, 0.215]
-    #   # - name: experiment_cylinder
-    #   #   type: cylinder
-    #   #   frame_id: world
-    #   #   visible: true
-    #   #   color: [0.0, 1.0, 0.0, 0.6]
-    #   #   parameters: [0.0, 0.0, 1.0, 0.5, 0.0, 0.115, 0.1, 0.1]
-
      hiqp_preload_tasks:
       #####      OBSTACLE AVOIDANCE TASKS    #####
-      # - name: yumi_link_5_r_l_avoidance
-      #   priority: 2
-      #   visible: true
-      #   active: true
-      #   def_params: ['TDefGeomProj', 'sphere', 'sphere', 'yumi_link_5_l_avoidance_sphere > yumi_link_5_r_avoidance_sphere']
-      #   dyn_params: ['TDynFirstOrder', '10.0']
-      # - name: yumi_link_6_r_l_avoidance
-      #   priority: 2
-      #   visible: true
-      #   active: true
-      #   def_params: ['TDefGeomProj', 'sphere', 'sphere', 'yumi_link_6_l_avoidance_sphere > yumi_link_6_r_avoidance_sphere']
-      #   dyn_params: ['TDynFirstOrder', '10.0']
-      # - name: yumi_link_5_l_6_r_avoidance
-      #   priority: 2
-      #   visible: true
-      #   active: true
-      #   def_params: ['TDefGeomProj', 'sphere', 'sphere', 'yumi_link_5_l_avoidance_sphere > yumi_link_6_r_avoidance_sphere']
-      #   dyn_params: ['TDynFirstOrder', '10.0']
-      # - name: yumi_link_5_r_6_l_avoidance
-      #   priority: 2
-      #   visible: true
-      #   active: true
-      #   def_params: ['TDefGeomProj', 'sphere', 'sphere', 'yumi_link_6_l_avoidance_sphere > yumi_link_5_r_avoidance_sphere']
-      #   dyn_params: ['TDynFirstOrder', '10.0']
+      - name: yumi_link_5_r_l_avoidance
+        priority: 2
+        visible: true
+        active: true
+        def_params: ['TDefGeomProj', 'sphere', 'sphere', 'yumi_link_5_l_avoidance_sphere > yumi_link_5_r_avoidance_sphere']
+        dyn_params: ['TDynFirstOrder', '10.0']
+      - name: yumi_link_6_r_l_avoidance
+        priority: 2
+        visible: true
+        active: true
+        def_params: ['TDefGeomProj', 'sphere', 'sphere', 'yumi_link_6_l_avoidance_sphere > yumi_link_6_r_avoidance_sphere']
+        dyn_params: ['TDynFirstOrder', '10.0']
+      - name: yumi_link_5_l_6_r_avoidance
+        priority: 2
+        visible: true
+        active: true
+        def_params: ['TDefGeomProj', 'sphere', 'sphere', 'yumi_link_5_l_avoidance_sphere > yumi_link_6_r_avoidance_sphere']
+        dyn_params: ['TDynFirstOrder', '10.0']
+      - name: yumi_link_5_r_6_l_avoidance
+        priority: 2
+        visible: true
+        active: true
+        def_params: ['TDefGeomProj', 'sphere', 'sphere', 'yumi_link_6_l_avoidance_sphere > yumi_link_5_r_avoidance_sphere']
+        dyn_params: ['TDynFirstOrder', '10.0']
       - name: yumi_link_5_l_floor_avoidance
         priority: 2
         visible: true

@@ -38,8 +38,8 @@ rosservice call /yumi/hiqp_joint_velocity_controller/set_task \
 priority: 1
 visible: 1
 active: 1
-def_params: ['TDefGeomProj', 'sphere', 'plane', 'gripper_l_base_sphere > floor_avoidance_plane', '0.01']
-dyn_params: ['TDynFirstOrder', '1.0']"
+def_params: ['TDefGeomProj', 'sphere', 'plane', 'gripper_l_base_sphere > floor_avoidance_plane']
+dyn_params: ['TDynFirstOrderCubic', '100000.0']"
 
 rosservice call /yumi/hiqp_joint_velocity_controller/set_task \
 "name: 'yumi_r_gripper_target_point'

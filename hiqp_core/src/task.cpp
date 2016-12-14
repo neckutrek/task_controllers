@@ -22,6 +22,7 @@
 #include <hiqp/tasks/task_geometric_projection.h>
 #include <hiqp/tasks/task_geometric_alignment.h>
 #include <hiqp/tasks/dynamics_first_order.h>
+#include <hiqp/tasks/dynamics_first_order_cubic.h>
 #include <hiqp/tasks/dynamics_jnt_limits.h>
 #include <hiqp/tasks/dynamics_minimal_jerk.h>
 #include <hiqp/utilities.h>
@@ -40,6 +41,7 @@ namespace hiqp {
   using tasks::TaskGeometricAlignment;
   using tasks::TaskAvoidCollisionsSDF;
   using tasks::DynamicsFirstOrder;
+  using tasks::DynamicsFirstOrderCubic;
   using tasks::DynamicsJntLimits;
   using tasks::DynamicsMinimalJerk;
 
@@ -190,6 +192,8 @@ namespace hiqp {
       dyn_ = std::make_shared<DynamicsFirstOrder>(geom_prim_map_, visualizer_);
     } else if (type.compare("TDynJntLimits") == 0) {
       dyn_ = std::make_shared<DynamicsJntLimits>(geom_prim_map_, visualizer_);
+    } else if (type.compare("TDynFirstOrderCubic") == 0) {
+      dyn_ = std::make_shared<DynamicsFirstOrderCubic>(geom_prim_map_, visualizer_);
     } else if (type.compare("TDynMinJerk") == 0) {
       dyn_ = std::make_shared<DynamicsMinimalJerk>(geom_prim_map_, visualizer_);
     } else {

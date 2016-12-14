@@ -53,6 +53,7 @@ add_library(${PROJECT_NAME} src/utilities.cpp
                             src/geometric_primitives/geometric_primitive_map.cpp
                             src/solvers/gurobi_solver.cpp
                             src/tasks/dynamics_first_order.cpp
+                            src/tasks/dynamics_first_order_cubic.cpp
                             src/tasks/dynamics_jnt_limits.cpp
                             src/tasks/dynamics_minimal_jerk.cpp
                             src/tasks/task_full_pose.cpp

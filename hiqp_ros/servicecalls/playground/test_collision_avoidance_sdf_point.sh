@@ -25,7 +25,7 @@ priority: 1
 visible: 1
 active: 1
 def_params: ['TDefAvoidCollisionsSDF', 'test_point']
-dyn_params: ['TDynFirstOrder', '1.0']"
+dyn_params: ['TDynFirstOrderCubic', '100000.0']"
 
 rosservice call /gplanner/map_to_edt 
 
@@ -35,6 +35,6 @@ priority: 2
 visible: 1
 active: 1
 def_params: ['TDefGeomProj', 'point', 'point', 'test_point = target_point']
-dyn_params: ['TDynFirstOrder', '0.05']"
+dyn_params: ['TDynFirstOrder', '1']"
 
 

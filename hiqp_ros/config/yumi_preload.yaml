@@ -101,100 +101,100 @@ yumi:
      hiqp_preload_tasks:
       #####      OBSTACLE AVOIDANCE TASKS    #####
       - name: yumi_link_5_r_l_avoidance
-        priority: 2
+        priority: 1
         visible: true
         active: true
         def_params: ['TDefGeomProj', 'sphere', 'sphere', 'yumi_link_5_l_avoidance_sphere > yumi_link_5_r_avoidance_sphere']
-        dyn_params: ['TDynFirstOrder', '10.0']
+        dyn_params: ['TDynFirstOrderCubic', '100000.0']
       - name: yumi_link_6_r_l_avoidance
-        priority: 2
+        priority: 1
         visible: true
         active: true
         def_params: ['TDefGeomProj', 'sphere', 'sphere', 'yumi_link_6_l_avoidance_sphere > yumi_link_6_r_avoidance_sphere']
-        dyn_params: ['TDynFirstOrder', '10.0']
+        dyn_params: ['TDynFirstOrderCubic', '100000.0']
       - name: yumi_link_5_l_6_r_avoidance
-        priority: 2
+        priority: 1
         visible: true
         active: true
         def_params: ['TDefGeomProj', 'sphere', 'sphere', 'yumi_link_5_l_avoidance_sphere > yumi_link_6_r_avoidance_sphere']
-        dyn_params: ['TDynFirstOrder', '10.0']
+        dyn_params: ['TDynFirstOrderCubic', '100000.0']
       - name: yumi_link_5_r_6_l_avoidance
-        priority: 2
+        priority: 1
         visible: true
         active: true
         def_params: ['TDefGeomProj', 'sphere', 'sphere', 'yumi_link_6_l_avoidance_sphere > yumi_link_5_r_avoidance_sphere']
-        dyn_params: ['TDynFirstOrder', '10.0']
+        dyn_params: ['TDynFirstOrderCubic', '100000.0']
       - name: yumi_link_5_l_floor_avoidance
-        priority: 2
+        priority: 1
         visible: true
         active: true
         def_params: ['TDefGeomProj', 'sphere', 'plane', 'yumi_link_5_l_avoidance_sphere > floor_avoidance_plane']
-        dyn_params: ['TDynFirstOrder', '10.0']
+        dyn_params: ['TDynFirstOrderCubic', '100000.0']
       - name: yumi_link_6_l_floor_avoidance
-        priority: 2
+        priority: 1
         visible: true
         active: true
         def_params: ['TDefGeomProj', 'sphere', 'plane', 'yumi_link_6_l_avoidance_sphere > floor_avoidance_plane']
-        dyn_params: ['TDynFirstOrder', '10.0']
+        dyn_params: ['TDynFirstOrderCubic', '100000.0']
       - name: yumi_link_5_r_floor_avoidance
-        priority: 2
+        priority: 1
         visible: true
         active: true
         def_params: ['TDefGeomProj', 'sphere', 'plane', 'yumi_link_5_r_avoidance_sphere > floor_avoidance_plane']
-        dyn_params: ['TDynFirstOrder', '10.0']
+        dyn_params: ['TDynFirstOrderCubic', '100000.0']
       - name: yumi_link_6_r_floor_avoidance
-        priority: 2
+        priority: 1
         visible: true
         active: true
         def_params: ['TDefGeomProj', 'sphere', 'plane', 'yumi_link_6_r_avoidance_sphere > floor_avoidance_plane']
-        dyn_params: ['TDynFirstOrder', '10.0']
+        dyn_params: ['TDynFirstOrderCubic', '100000.0']
       - name: yumi_r_gripper_floor_avoidance_1
-        priority: 2
+        priority: 1
         visible: true
         active: true
         def_params: ['TDefGeomProj', 'point', 'plane', 'gripper_r_base_avoidance_point_1 > floor_avoidance_plane']
-        dyn_params: ['TDynFirstOrder', '10.0']
+        dyn_params: ['TDynFirstOrderCubic', '100000.0']
       - name: yumi_r_gripper_floor_avoidance_2
-        priority: 2
+        priority: 1
         visible: true
         active: true
         def_params: ['TDefGeomProj', 'point', 'plane', 'gripper_r_base_avoidance_point_2 > floor_avoidance_plane']
-        dyn_params: ['TDynFirstOrder', '10.0']
+        dyn_params: ['TDynFirstOrderCubic', '100000.0']
       - name: yumi_r_gripper_floor_avoidance_3
-        priority: 2
+        priority: 1
         visible: true
         active: true
         def_params: ['TDefGeomProj', 'point', 'plane', 'gripper_r_base_avoidance_point_3 > floor_avoidance_plane']
-        dyn_params: ['TDynFirstOrder', '10.0']
+        dyn_params: ['TDynFirstOrderCubic', '100000.0']
       - name: yumi_r_gripper_floor_avoidance_4
-        priority: 2
+        priority: 1
         visible: true
         active: true
         def_params: ['TDefGeomProj', 'point', 'plane', 'gripper_r_base_avoidance_point_4 > floor_avoidance_plane']
-        dyn_params: ['TDynFirstOrder', '10.0']
+        dyn_params: ['TDynFirstOrderCubic', '100000.0']
       - name: yumi_l_gripper_floor_avoidance_1
-        priority: 2
+        priority: 1
         visible: true
         active: true
         def_params: ['TDefGeomProj', 'point', 'plane', 'gripper_l_base_avoidance_point_1 > floor_avoidance_plane']
-        dyn_params: ['TDynFirstOrder', '10.0']
+        dyn_params: ['TDynFirstOrderCubic', '100000.0']
       - name: yumi_l_gripper_floor_avoidance_2
-        priority: 2
+        priority: 1
         visible: true
         active: true
         def_params: ['TDefGeomProj', 'point', 'plane', 'gripper_l_base_avoidance_point_2 > floor_avoidance_plane']
-        dyn_params: ['TDynFirstOrder', '10.0']
+        dyn_params: ['TDynFirstOrderCubic', '100000.0']
       - name: yumi_l_gripper_floor_avoidance_3
-        priority: 2
+        priority: 1
         visible: true
         active: true
         def_params: ['TDefGeomProj', 'point', 'plane', 'gripper_l_base_avoidance_point_3 > floor_avoidance_plane']
-        dyn_params: ['TDynFirstOrder', '10.0']
+        dyn_params: ['TDynFirstOrderCubic', '100000.0']
       - name: yumi_l_gripper_floor_avoidance_4
-        priority: 2
+        priority: 1
         visible: true
         active: true
         def_params: ['TDefGeomProj', 'point', 'plane', 'gripper_l_base_avoidance_point_4 > floor_avoidance_plane']
-        dyn_params: ['TDynFirstOrder', '10.0']
+        dyn_params: ['TDynFirstOrderCubic', '100000.0']
 
-    #####      OTHER TASKS    #####
+

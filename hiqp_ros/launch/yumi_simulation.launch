@@ -34,7 +34,7 @@
   </include>
 
   <!--Launch the precomputed map-->
-  <include file="$(find grasp_planner)/launch/offline_yumi.launch"/>
+  <!--include file="$(find grasp_planner)/launch/offline_yumi.launch"/-->
 
   <param name="robot_description" 
          command="$(find xacro)/xacro.py '$(find yumi_description)/urdf/yumi.urdf.xacro' prefix:=$(arg hardware_interface)" />
@@ -48,7 +48,7 @@
 
 
   <rosparam file="$(find hiqp_ros)/config/yumi.yaml" command="load"/>
-  <!--rosparam file="$(find hiqp_ros)/config/yumi_preload.yaml" command="load"/-->
+  <rosparam file="$(find hiqp_ros)/config/yumi_preload.yaml" command="load"/>
 
   <node name="controller_spawner" 
         pkg="controller_manager" 

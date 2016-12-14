@@ -88,12 +88,12 @@ yumi:
         active: true
         def_params: ['TDefGeomProj', 'sphere', 'sphere', 'yumi_link_5_l_avoidance_sphere > yumi_link_6_r_avoidance_sphere']
         dyn_params: ['TDynFirstOrder', '10.0']
-#      - name: yumi_link_5_l_g_r_avoidance
-#        priority: 1
-#        visible: true
-#        active: true
-#        def_params: ['TDefGeomProj', 'sphere', 'sphere', 'yumi_link_5_l_avoidance_sphere > yumi_gripper_base_r_avoidance_sphere']
-#        dyn_params: ['TDynFirstOrder', '10.0']
+      - name: yumi_link_5_l_g_r_avoidance
+        priority: 1
+        visible: true
+        active: true
+        def_params: ['TDefGeomProj', 'sphere', 'sphere', 'yumi_link_5_l_avoidance_sphere > yumi_gripper_base_r_avoidance_sphere']
+        dyn_params: ['TDynFirstOrder', '10.0']
       - name: yumi_link_5_l_f_r_avoidance
         priority: 1
         visible: true
@@ -112,43 +112,43 @@ yumi:
         active: true
         def_params: ['TDefGeomProj', 'sphere', 'sphere', 'yumi_link_6_l_avoidance_sphere > yumi_link_6_r_avoidance_sphere']
         dyn_params: ['TDynFirstOrder', '10.0']
-#      - name: yumi_link_6_l_g_r_avoidance
-#        priority: 1
-#        visible: true
-#        active: true
-#        def_params: ['TDefGeomProj', 'sphere', 'sphere', 'yumi_link_6_l_avoidance_sphere > yumi_gripper_base_r_avoidance_sphere']
-#        dyn_params: ['TDynFirstOrder', '10.0']
+      - name: yumi_link_6_l_g_r_avoidance
+        priority: 1
+        visible: true
+        active: true
+        def_params: ['TDefGeomProj', 'sphere', 'sphere', 'yumi_link_6_l_avoidance_sphere > yumi_gripper_base_r_avoidance_sphere']
+        dyn_params: ['TDynFirstOrder', '10.0']
       - name: yumi_link_6_l_f_r_avoidance
         priority: 1
         visible: true
         active: true
         def_params: ['TDefGeomProj', 'sphere', 'sphere', 'yumi_link_6_l_avoidance_sphere > yumi_fingers_r_avoidance_sphere']
         dyn_params: ['TDynFirstOrder', '10.0']
-#      - name: yumi_link_g_l_5_r_avoidance
-#        priority: 1
-#        visible: true
-#        active: true
-#        def_params: ['TDefGeomProj', 'sphere', 'sphere', 'yumi_gripper_base_l_avoidance_sphere > yumi_link_5_r_avoidance_sphere']
-#        dyn_params: ['TDynFirstOrder', '10.0']
-#      - name: yumi_link_g_l_6_r_avoidance
-#        priority: 1
-#        visible: true
-#        active: true
-#        def_params: ['TDefGeomProj', 'sphere', 'sphere', 'yumi_gripper_base_l_avoidance_sphere > yumi_link_6_r_avoidance_sphere']
-#        dyn_params: ['TDynFirstOrder', '10.0']
-#      - name: yumi_link_g_l_g_r_avoidance
-#        priority: 1
-#        visible: true
-#        active: true
-#        def_params: ['TDefGeomProj', 'sphere', 'sphere', 'yumi_gripper_base_l_avoidance_sphere > yumi_gripper_base_r_avoidance_sphere']
-#        dyn_params: ['TDynFirstOrder', '10.0']
-#      - name: yumi_link_g_l_f_r_avoidance
-#        priority: 1
-#        visible: true
-#        active: true
-#        def_params: ['TDefGeomProj', 'sphere', 'sphere', 'yumi_gripper_base_l_avoidance_sphere > yumi_fingers_r_avoidance_sphere']
-#        dyn_params: ['TDynFirstOrder', '10.0']
-#      - name: yumi_link_f_l_5_r_avoidance
+      - name: yumi_link_g_l_5_r_avoidance
+        priority: 1
+        visible: true
+        active: true
+        def_params: ['TDefGeomProj', 'sphere', 'sphere', 'yumi_gripper_base_l_avoidance_sphere > yumi_link_5_r_avoidance_sphere']
+        dyn_params: ['TDynFirstOrder', '10.0']
+      - name: yumi_link_g_l_6_r_avoidance
+        priority: 1
+        visible: true
+        active: true
+        def_params: ['TDefGeomProj', 'sphere', 'sphere', 'yumi_gripper_base_l_avoidance_sphere > yumi_link_6_r_avoidance_sphere']
+        dyn_params: ['TDynFirstOrder', '10.0']
+      - name: yumi_link_g_l_g_r_avoidance
+        priority: 1
+        visible: true
+        active: true
+        def_params: ['TDefGeomProj', 'sphere', 'sphere', 'yumi_gripper_base_l_avoidance_sphere > yumi_gripper_base_r_avoidance_sphere']
+        dyn_params: ['TDynFirstOrder', '10.0']
+      - name: yumi_link_g_l_f_r_avoidance
+        priority: 1
+        visible: true
+        active: true
+        def_params: ['TDefGeomProj', 'sphere', 'sphere', 'yumi_gripper_base_l_avoidance_sphere > yumi_fingers_r_avoidance_sphere']
+        dyn_params: ['TDynFirstOrder', '10.0']
+      - name: yumi_link_f_l_5_r_avoidance
         priority: 1
         visible: true
         active: true
@@ -160,12 +160,12 @@ yumi:
         active: true
         def_params: ['TDefGeomProj', 'sphere', 'sphere', 'yumi_fingers_l_avoidance_sphere > yumi_link_6_r_avoidance_sphere']
         dyn_params: ['TDynFirstOrder', '10.0']
-#      - name: yumi_link_f_l_g_r_avoidance
-#        priority: 1
-#        visible: true
-#        active: true
-#        def_params: ['TDefGeomProj', 'sphere', 'sphere', 'yumi_fingers_l_avoidance_sphere > yumi_gripper_base_r_avoidance_sphere']
-#        dyn_params: ['TDynFirstOrder', '10.0']
+      - name: yumi_link_f_l_g_r_avoidance
+        priority: 1
+        visible: true
+        active: true
+        def_params: ['TDefGeomProj', 'sphere', 'sphere', 'yumi_fingers_l_avoidance_sphere > yumi_gripper_base_r_avoidance_sphere']
+        dyn_params: ['TDynFirstOrder', '10.0']
       - name: yumi_link_f_l_f_r_avoidance
         priority: 1
         visible: true

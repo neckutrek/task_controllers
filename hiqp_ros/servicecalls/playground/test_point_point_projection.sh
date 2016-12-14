@@ -15,7 +15,7 @@ type: 'point'
 frame_id: 'yumi_body'
 visible: true
 color: [0.0, 0.0, 1.0, 1.0]
-parameters: [0.4, 0.0, 0.1]"
+parameters: [0.3, -0.1, 0.1]"
 
 rosservice call /yumi/hiqp_joint_velocity_controller/set_task \
 "name: 'test_point_target_point'
@@ -23,4 +23,4 @@ priority: 2
 visible: 1
 active: 1
 def_params: ['TDefGeomProj', 'point', 'point', 'test_point = target_point']
-dyn_params: ['TDynFirstOrder', '1.0']"
+dyn_params: ['TDynFirstOrder', '1.']"

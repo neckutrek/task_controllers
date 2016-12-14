@@ -7,6 +7,6 @@ priority: 2
 visible: 1
 active: 1
 def_params: ['TDefFullPose', '-1.8', '0.26', '-1.15', '0.72', '0.0', '0.0', '0.0', '0.35', '-1.0', '-1.88', '1.1', '1.59', '0.6', '1.39']
-dyn_params: ['TDynFirstOrder', '1']"
+dyn_params: ['TDynFirstOrder', '0.5']"
 
 

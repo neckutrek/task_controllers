@@ -46,7 +46,7 @@ void SDFCollisionCheck::init() {
     ROS_INFO("subscribed to topics");
 }
 
-void SDFCollisionCheck::mapCallback(const hiqp_collision_check::SDFMap::ConstPtr& msg) {
+void SDFCollisionCheck::mapCallback(const hiqp_msgs::SDFMap::ConstPtr& msg) {
     if(!this->isActive()) return;
 
     ROS_INFO("got a new map");

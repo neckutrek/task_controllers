@@ -26,6 +26,7 @@ add_message_files(FILES TaskMeasure.msg
                         TaskMeasures.msg
                         PoseWithName.msg
                         StringArray.msg
+			SDFMap.msg
                         Vector3d.msg)
 
 add_service_files(FILES AddGeometricPrimitive.srv

@@ -3,7 +3,7 @@
 
 #include <hiqp_collision_check/checker_base.h>
 #include <ros/ros.h>
-#include <hiqp_collision_check/SDFMap.h>
+#include <hiqp_msgs/SDFMap.h>
 #include <tf/transform_listener.h>
 #include <tf_conversions/tf_eigen.h>
 #include <boost/thread/mutex.hpp>
@@ -45,7 +45,7 @@ namespace hiqp {
 
 	///methods
 	private:
-	    void mapCallback(const hiqp_collision_check::SDFMap::ConstPtr& msg);  
+	    void mapCallback(const hiqp_msgs::SDFMap::ConstPtr& msg);  
 	    ///returns the trilinear interpolated SDF value at location
 	    double SDF(const Eigen::Vector3d &location);
 	    /// Checks the validity of the gradient of the SDF at the current point   

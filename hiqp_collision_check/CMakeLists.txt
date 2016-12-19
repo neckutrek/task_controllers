@@ -8,7 +8,7 @@ set(CMAKE_BUILD_TYPE RelWithDebinfo)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
-  message_generation
+  hiqp_msgs
   cmake_modules tf tf_conversions eigen_conversions
 )
 
@@ -21,10 +21,10 @@ find_package(Eigen REQUIRED)
 
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-  FILES
-  SDFMap.msg
-)
+#add_message_files(
+#  FILES
+#  SDFMap.msg
+#)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -44,7 +44,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES hiqp_collision_check
-  CATKIN_DEPENDS roscpp std_msgs message_runtime tf tf_conversions eigen_conversions
+  CATKIN_DEPENDS roscpp std_msgs message_runtime tf tf_conversions eigen_conversions hiqp_msgs
 #  DEPENDS system_lib
 )
 

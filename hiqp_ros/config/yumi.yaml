@@ -2,6 +2,8 @@ yumi:
   joint_state_controller:
       type: joint_state_controller/JointStateController
       publish_rate: 50  
+
+ # HIQP velocity controller ---------------------------------------
   hiqp_joint_velocity_controller:
     type: hiqp_ros/HiQPJointVelocityController
     sampling_time: 1.0 # ms
@@ -24,6 +26,8 @@ yumi:
     task_monitoring:
       active: 1
       publish_rate: 50.0 # Hz
+
+ # HIQP velocity controller ---------------------------------------
   hiqp_joint_velocity_controller_collision:
     type: hiqp_ros/HiQPJointVelocityControllerCollision
     fps: 20
@@ -45,3 +49,15 @@ yumi:
     task_monitoring:
       active: 1
       publish_rate: 50.0
+
+ # Effort gripper position controllers ---------------------------------------
+  yumi_gripper_r_effort_position_controller:
+    type: effort_controllers/JointPositionController
+    joint: gripper_r_joint
+    pid: {p: 8.0, i: 1, d: 0.8, i_clamp_min: -100, i_clamp_max: 100}
+
+  yumi_gripper_l_effort_position_controller:
+    type: effort_controllers/JointPositionController
+    joint: gripper_l_joint
+    pid: {p: 8.0, i: 1, d: 0.8, i_clamp_min: -100, i_clamp_max: 100}
+

@@ -13,7 +13,10 @@
   -->
 
   <arg name="hardware_interface" default="VelocityJointInterface"/>
-  <arg name="controllers" default="joint_state_controller hiqp_joint_velocity_controller"/>
+  <arg name="controllers" default="joint_state_controller 
+                                   hiqp_joint_velocity_controller
+                                   yumi_gripper_r_effort_position_controller
+                                   yumi_gripper_l_effort_position_controller"/>
 
   <arg name="paused" default="false"/>
   <arg name="use_sim_time" default="true"/>

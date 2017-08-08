@@ -129,7 +129,7 @@ class HiQPClient {
 
   void activateTasks(const std::vector<std::string>& task_names);
 
-  void removeTask(const std::string& task_name);
+  bool removeTask(const std::string& task_name);
 
   bool removeTasks(const std::vector <std::string>& task_names);
 

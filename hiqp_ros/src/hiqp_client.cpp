@@ -51,7 +51,7 @@ void HiQPClient::connectToServer() {
   ROS_INFO("Connected to HiQP Servers.");
 }
 
-void HiQPClient::setPrimitives(
+bool HiQPClient::setPrimitives(
     const std::vector<hiqp_msgs::Primitive>& primitives) {
   hiqp_msgs::SetPrimitives setPrimitivesMsg;
   setPrimitivesMsg.request.primitives = primitives;
@@ -61,15 +61,20 @@ void HiQPClient::setPrimitives(
         std::accumulate(setPrimitivesMsg.response.success.begin(),
                         setPrimitivesMsg.response.success.end(), 0);
 
-    if (returnValue == setPrimitivesMsg.response.success.size())
+    if (returnValue == setPrimitivesMsg.response.success.size()) {
       ROS_INFO("Set primitive(s) succeeded.");
-    else
+      return true;
+    } else {
       ROS_WARN("Either all or some of the primitives were not added.");
-  } else
+      return false;
+    }
+  } else {
     ROS_WARN("set_primitive service call failed.");
+  }
+  return false;
 }
 
-void HiQPClient::setPrimitive(const std::string& name, const std::string& type,
+bool HiQPClient::setPrimitive(const std::string& name, const std::string& type,
                               const std::string& frame_id, bool visible,
                               const std::vector<double>& color,
                               const std::vector<double>& parameters) {
@@ -83,10 +88,10 @@ void HiQPClient::setPrimitive(const std::string& name, const std::string& type,
 
   std::vector<hiqp_msgs::Primitive> primitives{primitive};
 
-  setPrimitives(primitives);
+  return setPrimitives(primitives);
 }
 
-void HiQPClient::setTask(const std::string& name, int16_t priority,
+bool HiQPClient::setTask(const std::string& name, int16_t priority,
                          bool visible, bool active, bool monitored,
                          const std::vector<std::string>& def_params,
                          const std::vector<std::string>& dyn_params) {
@@ -102,10 +107,10 @@ void HiQPClient::setTask(const std::string& name, int16_t priority,
 
   std::vector<hiqp_msgs::Task> tasks{task};
 
-  setTasks(tasks);
+  return setTasks(tasks);
 }
 
-void HiQPClient::setTasks(const std::vector<hiqp_msgs::Task>& tasks) {
+bool HiQPClient::setTasks(const std::vector<hiqp_msgs::Task>& tasks) {
   hiqp_msgs::SetTasks setTasksMsg;
   setTasksMsg.request.tasks = tasks;
 
@@ -113,21 +118,25 @@ void HiQPClient::setTasks(const std::vector<hiqp_msgs::Task>& tasks) {
     int returnValue = std::accumulate(setTasksMsg.response.success.begin(),
                                       setTasksMsg.response.success.end(), 0);
 
-    if (returnValue == setTasksMsg.response.success.size())
+    if (returnValue == setTasksMsg.response.success.size()) {
       ROS_INFO("Set task(s) succeeded.");
-    else
+    } else {
       ROS_WARN("Either all or some of the tasks were not added.");
-
-  } else
+    }
+    
+    return (returnValue == setTasksMsg.response.success.size());
+  } else {
     ROS_WARN("set_tasks service call failed.");
+  }
+  return false;
 }
 
-void HiQPClient::removeTask(const std::string& task_name) {
+bool HiQPClient::removeTask(const std::string& task_name) {
   ROS_INFO("Removing Task: %s...", task_name.c_str());
-  removeTasks({task_name});
+  return removeTasks({task_name});
 }
 
-void HiQPClient::removeTasks(const std::vector<std::string>& task_names) {
+bool HiQPClient::removeTasks(const std::vector<std::string>& task_names) {
   hiqp_msgs::RemoveTasks removeTasksMsg;
   removeTasksMsg.request.names = task_names;
 
@@ -135,21 +144,26 @@ void HiQPClient::removeTasks(const std::vector<std::string>& task_names) {
     int returnValue = std::accumulate(removeTasksMsg.response.success.begin(),
                                       removeTasksMsg.response.success.end(), 0);
 
-    if (returnValue == removeTasksMsg.response.success.size())
+    if (returnValue == removeTasksMsg.response.success.size()) {
       ROS_INFO("Remove task(s) succeeded.");
-    else
+      return true;
+    } else {
       ROS_WARN("Either all or some of the tasks were not removed.");
+      return false;
+    }
 
-  } else
+  } else {
     ROS_WARN("remove_tasks service call failed.");
+    return false;
+  }
 }
 
-void HiQPClient::removePrimitive(const std::string& primitive_name) {
+bool HiQPClient::removePrimitive(const std::string& primitive_name) {
   ROS_INFO("Removing primitive: %s...", primitive_name.c_str());
-  removePrimitives({primitive_name});
+  return removePrimitives({primitive_name});
 }
 
-void HiQPClient::removePrimitives(
+bool HiQPClient::removePrimitives(
     const std::vector<std::string>& primitive_names) {
   hiqp_msgs::RemovePrimitives removePrimitivesMsg;
   removePrimitivesMsg.request.names = primitive_names;
@@ -159,16 +173,20 @@ void HiQPClient::removePrimitives(
         std::accumulate(removePrimitivesMsg.response.success.begin(),
                         removePrimitivesMsg.response.success.end(), 0);
 
-    if (returnValue == removePrimitivesMsg.response.success.size())
+    if (returnValue == removePrimitivesMsg.response.success.size()) {
       ROS_INFO("Remove primitive(s) succeeded.");
-    else
+      return true;
+    } else {
       ROS_WARN("Either all or some of the primitives were not removed.");
-
-  } else
+      return false;
+    }
+  } else {
     ROS_WARN("remove_primitives service call failed.");
+    return false;
+  }
 }
 
-void HiQPClient::deactivateTask(const std::string& task_name) {
+bool HiQPClient::deactivateTask(const std::string& task_name) {
   ROS_INFO("Deactivating Task: %s...", task_name.c_str());
   hiqp_msgs::DeactivateTask deactivateTaskMsg;
   deactivateTaskMsg.request.name = task_name;
@@ -177,7 +195,9 @@ void HiQPClient::deactivateTask(const std::string& task_name) {
     ROS_WARN(
         "Deactivating task \'%s\' failed. See server output/log for details.",
         task_name.c_str());
+    return false;
   }
+  return true;
 }
 
 void HiQPClient::activateTasks(const std::vector<std::string>& task_names) {
@@ -325,51 +345,66 @@ void HiQPClient::waitForCompletion(
   removeTasks(tasks_to_remove);
 }
 
-void HiQPClient::setJointAngles(const std::vector<double>& joint_angles,
-                                bool remove) {
+bool HiQPClient::setJointAngles(const std::vector<double>& joint_angles,
+                                bool remove, double tol) {
   std::vector<std::string> def_params{"TDefFullPose"};
 
   for (auto jointValue : joint_angles) {
     def_params.push_back(std::to_string(jointValue));
   }
 
-  this->setTask("joint_configuration", 3, true, true, true, def_params,
+  bool ret = this->setTask("joint_configuration", 3, true, true, true, def_params,
                 {"TDynLinear", "0.75"});
-  if (remove)
-    waitForCompletion({"joint_configuration"}, {TaskDoneReaction::REMOVE},
-                      {1e-2});
-  else
-    waitForCompletion({"joint_configuration"}, {TaskDoneReaction::NONE},
-                      {1e-2});
+  if (ret) {
+      if (remove) {
+	  waitForCompletion({"joint_configuration"}, {TaskDoneReaction::REMOVE},
+		  {tol});
+      }
+      else {
+	  waitForCompletion({"joint_configuration"}, {TaskDoneReaction::NONE},
+		  {tol});
+      }
+  } else {
+      ROS_ERROR("could not set joint configuration task");
+  }
+
+  return ret;
 }
 
-void HiQPClient::removeAllTasks() {
+bool HiQPClient::removeAllTasks() {
   hiqp_msgs::RemoveAllTasks removeAllTasksMsg;
-  if (remove_all_primitives_client_.call(removeAllTasksMsg)) {
+  if (remove_all_tasks_client_.call(removeAllTasksMsg)) {
     if (removeAllTasksMsg.response.success) {
       ROS_INFO("All tasks removed.");
+      return true;
     } else {
       ROS_ERROR("Failed to remove all tasks.");
     }
-  } else
+  } else {
     ROS_FATAL("remove_all_tasks service call failed.");
+  }
+  return false;
 }
 
-void HiQPClient::removeAllPrimitives() {
+bool HiQPClient::removeAllPrimitives() {
   hiqp_msgs::RemoveAllPrimitives removeAllPrimitivesMsg;
   if (remove_all_primitives_client_.call(removeAllPrimitivesMsg)) {
     if (removeAllPrimitivesMsg.response.success) {
       ROS_INFO("All primitives removed.");
+      return true;
     } else {
       ROS_ERROR("Failed to remove all primitives.");
     }
-  } else
+  } else {
     ROS_FATAL("remove_all_primitives service call failed.");
+  }
+  return false;
 }
 
-void HiQPClient::resetHiQPController() {
-  removeAllTasks();
-  removeAllPrimitives();
+bool HiQPClient::resetHiQPController() {
+  bool ret = removeAllTasks();
+  ret = ret && removeAllPrimitives();
+  return ret;
 }
 
 hiqp_msgs::Task createTaskMsg(const std::string& name, int16_t priority,

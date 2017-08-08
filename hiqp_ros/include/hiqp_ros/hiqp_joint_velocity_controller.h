@@ -67,7 +67,7 @@ class HiQPJointVelocityController
 
   void loadRenderingParameters();
   int loadAndSetupTaskMonitoring();
-  // void addAllTopicSubscriptions();
+  void addTfTopicSubscriptions();
   void loadJointLimitsFromParamServer();
   void loadGeometricPrimitivesFromParamServer();
   void loadTasksFromParamServer();

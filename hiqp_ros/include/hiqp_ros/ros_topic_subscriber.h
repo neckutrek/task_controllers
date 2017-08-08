@@ -22,6 +22,7 @@
 
 #include <hiqp/geometric_primitives/geometric_cylinder.h>
 #include <hiqp/task_manager.h>
+#include <hiqp/robot_state.h>
 
 #include "ros/ros.h"
 
@@ -41,7 +42,10 @@ class ROSTopicSubscriber {
   ROSTopicSubscriber() {}
   ~ROSTopicSubscriber() {}
 
-  int init(hiqp::TaskManager* task_manager) { task_manager_ = task_manager; }
+  int init(hiqp::TaskManager* task_manager, hiqp::RobotStatePtr robot_state_ptr) { 
+      task_manager_ = task_manager; 
+      robot_state_ptr_ = robot_state_ptr;
+  }
 
   template <typename ROSMessageType>
   int addSubscription(ros::NodeHandle& controller_nh,
@@ -65,6 +69,7 @@ class ROSTopicSubscriber {
   ros::Subscriber sub;
 
   hiqp::TaskManager* task_manager_;
+  hiqp::RobotStatePtr robot_state_ptr_;
 };
 
 }  // namespace hiqp

@@ -22,13 +22,94 @@
 #include <hiqp_msgs/StringArray.h>
 #include <hiqp_msgs/Vector3d.h>
 
+#include <hiqp/utilities.h>
+#include <hiqp/robot_state.h>
+
 #include <iostream>
 #include <string>
 #include <vector>
 
+#include <tf/tfMessage.h>
 #include <geometry_msgs/PoseStamped.h>
 
 namespace hiqp_ros {
+
+///put all frames from tf as geometry frames in the primitve map
+template <>
+void ROSTopicSubscriber::topicCallback<tf::tfMessage>(
+    const tf::tfMessage& msg) {
+    
+    for(int i=0; i<msg.transforms.size(); i++) {
+	std::string parent_frame = msg.transforms[i].header.frame_id;
+	std::string child_frame = msg.transforms[i].child_frame_id;
+	std::vector<hiqp::PrimitiveInfo> prims = task_manager_->getGeometricPrimitiveMap()->getAllPrimitiveInfo();
+	bool prim_exists = false;
+	bool update_parent = false;
+	bool parent_in_prim_map = false;
+	
+	//check if this primitve exists already and if the parent primitive is in the map
+	for(int j=0; j<prims.size(); j++) {
+	    if(prims[j].type.compare("frame")==0) {
+		if(prims[j].name.compare(child_frame) == 0) {
+		    prim_exists = true;
+		    if(prims[j].frame_id.compare(parent_frame) != 0) {
+			update_parent = true;
+		    }
+		}
+		/*
+		if(prims[j].name.compare(parent_frame) == 0 ) {
+		    parent_in_prim_map = true;
+		}
+		*/
+	    }
+	}
+	
+	//try to lookup the child frame in the kdl tree. if it exists, we don't want to add it.
+	if(hiqp::kdl_getQNrFromLinkName(robot_state_ptr_->kdl_tree_, child_frame) >= 0) {
+	    //ROS_WARN("child frame %s is already in the kdl tree, skipping!", child_frame.c_str());
+	    continue;
+	} 
+	//try to lookup parent frame in the kdl tree. if it exists, we can add the primitive
+	if(hiqp::kdl_getQNrFromLinkName(robot_state_ptr_->kdl_tree_, parent_frame) < 0) {
+	    //ROS_WARN("parent frame %s is not in the kdl tree!", parent_frame.c_str());
+	    continue;
+	    /*
+	    //check parent is not in the geometry map either
+	    if(!parent_in_prim_map) {
+		ROS_WARN("parent frame %s is not in the primitive map, skipping!", parent_frame.c_str());
+		continue;
+	    }
+	    */
+	} 
+	
+
+	geometry_msgs::Transform t = msg.transforms[i].transform;
+	std::vector<double> parameters { t.translation.x, t.translation.y, t.translation.z,
+					 t.rotation.w, t.rotation.x, t.rotation.y, t.rotation.z };
+	std::vector<double> color {0.8, 0.1, 0.8, 0.8};
+	//if yes, we simply update the parameters
+	if(prim_exists) {
+	    if(update_parent) {
+		//ROS_INFO("changing parent frame %s", child_frame.c_str());
+		task_manager_->getGeometricPrimitiveMap()
+		    ->getGeometricPrimitive<GeometricFrame>(child_frame)->resetFrameId(parent_frame);
+	    
+	    }
+	    task_manager_->getGeometricPrimitiveMap()
+		->updateGeometricPrimitive<GeometricFrame>(child_frame, parameters);
+	    //ROS_INFO("updated frame %s",child_frame.c_str());
+	    continue;
+	}
+	
+	//if no, we add a new primitve
+	task_manager_->getGeometricPrimitiveMap()->setGeometricPrimitive(child_frame, "frame",
+									parent_frame, true, 
+									color, parameters);
+	ROS_INFO("added new frame %s",child_frame.c_str());
+	
+    }
+
+}
 
 template <>
 void ROSTopicSubscriber::topicCallback<geometry_msgs::PoseStamped>(

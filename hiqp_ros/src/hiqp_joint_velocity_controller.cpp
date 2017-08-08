@@ -31,6 +31,7 @@
 #include <hiqp_msgs/Vector3d.h>
 
 #include <geometry_msgs/PoseStamped.h>  // teleoperation magnet sensors
+#include <tf/tfMessage.h>
 
 using hiqp::TaskMeasure;
 
@@ -64,7 +65,16 @@ void HiQPJointVelocityController::initialize() {
 
   if (loadAndSetupTaskMonitoring() != 0) return;
 
-  // addAllTopicSubscriptions();
+  bool tf_primitives = false;
+  if (!this->getControllerNodeHandle().getParam("load_primitives_from_tf",
+                                                tf_primitives)) {
+    ROS_WARN(
+        "Couldn't find parameter 'load_primitives_from_tf' on parameter "
+        "server, defaulting to no tf primitive tracking.");
+  }
+  if(tf_primitives) {
+      addTfTopicSubscriptions();
+  }
 
   service_handler_.advertiseAll();
 
@@ -362,6 +372,15 @@ void HiQPJointVelocityController::loadTasksFromParamServer() {
     if (parsing_success)
       ROS_INFO("Loaded and initiated tasks from .yaml file successfully!");
   }
+}
+
+void HiQPJointVelocityController::addTfTopicSubscriptions()
+{
+   topic_subscriber_.init( &task_manager_, this->getRobotState() );
+
+   topic_subscriber_.addSubscription<tf::tfMessage>(
+     this->getControllerNodeHandle(), "/tf", 100
+   );
 }
 
 }  // namespace hiqp_ros

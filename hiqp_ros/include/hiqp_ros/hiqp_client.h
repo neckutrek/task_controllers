@@ -96,13 +96,14 @@ class HiQPClient {
    * @param visible Should this be visible in rviz?
    * @param color If visible is set to true, color and alpha values.
    * @param parameters Parameters for the primitive.
+   * @return success or failure
    */
-  void setPrimitive(const std::string& name, const std::string& type,
+  bool setPrimitive(const std::string& name, const std::string& type,
                     const std::string& frame_id, bool visible,
                     const std::vector<double>& color,
                     const std::vector<double>& parameters);
 
-  void setPrimitives(const std::vector<hiqp_msgs::Primitive>& primitives);
+  bool setPrimitives(const std::vector<hiqp_msgs::Primitive>& primitives);
 
   /**
    * Call the set_task service on the hiqp controller.
@@ -115,33 +116,34 @@ class HiQPClient {
    * @param def_params Task name and list of strings that are passed to the init
    * fn.
    * @param dyn_params Name of the dynamics and the parameters.
+   * @return success or failure
    */
-  void setTask(const std::string& name, int16_t priority, bool visible,
+  bool setTask(const std::string& name, int16_t priority, bool visible,
                bool active, bool monitored,
                const std::vector<std::string>& def_params,
                const std::vector<std::string>& dyn_params);
 
-  void setTasks(const std::vector<hiqp_msgs::Task>& tasks);
+  bool setTasks(const std::vector<hiqp_msgs::Task>& tasks);
 
-  void deactivateTask(const std::string& task_name);
+  bool deactivateTask(const std::string& task_name);
 
   void activateTasks(const std::vector<std::string>& task_names);
 
   void removeTask(const std::string& task_name);
 
-  void removeTasks(const std::vector <std::string>& task_names);
+  bool removeTasks(const std::vector <std::string>& task_names);
 
-  void removePrimitive(const std::string& primitive_name);
+  bool removePrimitive(const std::string& primitive_name);
   
-  void removePrimitives(const std::vector <std::string>& primitive_names);
+  bool removePrimitives(const std::vector <std::string>& primitive_names);
 
-  void removeAllTasks();
+  bool removeAllTasks();
 
-  void removeAllPrimitives();
+  bool removeAllPrimitives();
 
-  void resetHiQPController();
+  bool resetHiQPController();
 
-  void setJointAngles(const std::vector<double>& joint_angles, bool remove = true);
+  bool setJointAngles(const std::vector<double>& joint_angles, bool remove = true, double tol=1e-2);
 
   /**
    * Wait for a group of tasks to be completed, and then unload them all.

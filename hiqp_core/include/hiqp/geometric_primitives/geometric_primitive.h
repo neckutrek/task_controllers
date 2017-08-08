@@ -58,6 +58,7 @@ class GeometricPrimitive {
   inline std::vector<double> getColor() { return {r_, g_, b_, a_}; }
   inline std::vector<double> getParameters() { return parameters_; }
 
+  inline void resetFrameId(std::string frame_id) { frame_id_ = frame_id; }
  protected:
   std::string name_;
   std::string frame_id_;

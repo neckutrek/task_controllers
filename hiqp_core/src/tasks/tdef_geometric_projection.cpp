@@ -1,4 +1,3 @@
-// The HiQP Control Framework, an optimal control framework targeted at robotics
 // Copyright (C) 2016 Marcus A Johansson
 //
 // This program is free software: you can redistribute it and/or modify
@@ -200,10 +199,14 @@ int TDefGeometricProjection<GeometricPoint, GeometricCylinder>::project(
   KDL::Rotation K = KDL::Rotation(KDL::Vector(1, 0, 0) - v * v(0),
                                   KDL::Vector(0, 1, 0) - v * v(1),
                                   KDL::Vector(0, 0, 1) - v * v(2));
-
+  std::cout<<x<<" "<<x<<std::endl;
   for (int q_nr = 0; q_nr < jacobian_a_.columns(); ++q_nr) {
     KDL::Vector Jpd = -getVelocityJacobianForTwoPoints(p__, d__, q_nr);
+    // std::cout<<q_nr<<" "<<Jpd<<std::endl;
     KDL::Vector y = K * Jpd;
+    // std::cout<<"x "<<x<<std::endl;
+    // std::cout<<"y "<<y<<std::endl;
+    // std::cout<<"x*y "<<KDL::dot(x, y)<<std::endl;
     J_(0, q_nr) = 2 * KDL::dot(x, y);
   }
   return 0;

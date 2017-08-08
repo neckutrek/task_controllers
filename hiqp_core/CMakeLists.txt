@@ -84,6 +84,8 @@ add_library(${PROJECT_NAME} src/utilities.cpp
                             src/tasks/tdef_full_pose.cpp
                             src/tasks/tdef_geometric_alignment.cpp
                             src/tasks/tdef_geometric_projection.cpp
+                            src/tasks/tdef_geometric_projection_with_nullspace.cpp
+
                             src/tasks/tdef_jnt_config.cpp
                             src/tasks/tdef_jnt_limits.cpp)
 

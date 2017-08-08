@@ -20,6 +20,7 @@
 #include <hiqp/tasks/tdef_full_pose.h>
 #include <hiqp/tasks/tdef_geometric_alignment.h>
 #include <hiqp/tasks/tdef_geometric_projection.h>
+#include <hiqp/tasks/tdef_geometric_projection_with_nullspace.h>
 #include <hiqp/tasks/tdef_jnt_config.h>
 #include <hiqp/tasks/tdef_jnt_limits.h>
 #include <hiqp/tasks/tdef_meta_task.h>
@@ -42,6 +43,7 @@ namespace hiqp {
 using tasks::TDefFullPose;
 using tasks::TDefGeometricAlignment;
 using tasks::TDefGeometricProjection;
+using tasks::TDefGeometricProjectionWithNullspace;
 using tasks::TDefJntConfig;
 using tasks::TDefJntLimits;
 using tasks::TDefMetaTask;
@@ -190,6 +192,19 @@ int Task::constructDefinition(const std::vector<std::string>& def_params) {
     } else {
       printHiqpWarning(
           "TDefGeomProj does not support primitive combination of types '" +
+          prim_type1 + "' and '" + prim_type2 + "'!");
+      return -1;
+    }
+  } else if (type.compare("TDefGeomProjWithNullspace") == 0) {
+    std::string prim_type1 = def_params.at(1);
+    std::string prim_type2 = def_params.at(2);
+    if (prim_type1.compare("point") == 0 && prim_type2.compare("cylinder") == 0) {
+      def_ = std::make_shared<
+          TDefGeometricProjectionWithNullspace<GeometricPoint, GeometricCylinder> >(
+          geom_prim_map_, visualizer_);
+    } else {
+      printHiqpWarning(
+          "TDefGeometricProjectionWithNullspace does not support primitive combination of types '" +
           prim_type1 + "' and '" + prim_type2 + "'!");
       return -1;
     }

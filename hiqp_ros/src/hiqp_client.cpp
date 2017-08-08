@@ -180,6 +180,20 @@ void HiQPClient::deactivateTask(const std::string& task_name) {
   }
 }
 
+void HiQPClient::activateTasks(const std::vector<std::string>& task_names) {
+  for (auto& task_name : task_names){
+    ROS_INFO("Activating Tasks: %s...", task_name.c_str());
+    hiqp_msgs::ActivateTask activateTaskMsg;
+    activateTaskMsg.request.name = task_name;
+
+    if (!activate_task_client_.call(activateTaskMsg)) {
+      ROS_WARN(
+        "Deactivating task \'%s\' failed. See server output/log for details.",
+        task_name.c_str());
+    }
+  }
+}
+
 std::string taskMeasuresAsString(
     const hiqp_msgs::TaskMeasuresConstPtr& task_measures) {
   std::string s;

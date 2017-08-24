@@ -97,7 +97,6 @@ int TDefGeometricAlignment<GeometricFrame, GeometricFrame>::align(
   KDL::Vector ax2 = pose_b_.M * frame2->getAxisXKDL();
   KDL::Vector ay1 = pose_a_.M * frame1->getAxisYKDL();
   KDL::Vector ay2 = pose_b_.M * frame2->getAxisYKDL();
-
   double d1 = KDL::dot(ax1, ax2);
   double d2 = KDL::dot(ay1, ay2);
 

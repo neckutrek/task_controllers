@@ -130,7 +130,6 @@ int TaskManager::setTask(const std::string& task_name, unsigned int priority,
   task->setVisible(visible);
   task->setActive(active);
   task->setMonitored(monitored);
-
   if (task->init(def_params, dyn_params, robot_state) != 0) {
     // printHiqpWarning("The task '" + task_name + "' was not added!");
     resource_mutex_.unlock();

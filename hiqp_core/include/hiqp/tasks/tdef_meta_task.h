@@ -59,6 +59,7 @@ class TDefMetaTask : public TaskDefinition {
   TDefMetaTask& operator=(TDefMetaTask&& other) noexcept = delete;
 
   std::vector<std::shared_ptr<TaskDefinition> > task_defs_;
+  std::vector<int> rows;
 };
 
 }  // namespace tasks

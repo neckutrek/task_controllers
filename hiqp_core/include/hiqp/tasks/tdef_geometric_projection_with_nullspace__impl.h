@@ -65,6 +65,10 @@ int TDefGeometricProjectionWithNullspace<PrimitiveA, PrimitiveB>::init(
   unsigned int n_joints = robot_state->getNumJoints();
   e_.resize(2);
   J_.resize(2, n_joints);
+
+  // e_.resize(3);
+  // J_.resize(3, n_joints);
+
   performance_measures_.resize(0);
 
   fk_solver_pos_ =
@@ -109,8 +113,10 @@ int TDefGeometricProjectionWithNullspace<PrimitiveA, PrimitiveB>::init(
 
   task_types_.clear();
   task_types_.resize(2);
+  // task_types_.resize(3);
   task_types_.at(0) = sign;
   task_types_.at(1) = sign;
+  // task_types_.at(2) = sign;
 
   return 0;
 }

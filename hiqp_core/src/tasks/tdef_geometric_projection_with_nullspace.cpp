@@ -80,29 +80,21 @@ int TDefGeometricProjectionWithNullspace<GeometricPoint, GeometricCylinder>::pro
                                   KDL::Vector(0, 1, 0) - v * v(1),
                                   KDL::Vector(0, 0, 1) - v * v(2));
 
-  KDL::Vector n = v*x;
-
+  KDL::Vector x2 = x;
+  x2(2) = 0;
+  KDL::Vector n = x2*v;
+  n.Normalize();
+  v.Normalize();
   for (int q_nr = 0; q_nr < jacobian_a_.columns(); ++q_nr) {
     KDL::Vector Jpd = -getVelocityJacobianForTwoPoints(p__, d__, q_nr);
-    KDL::Vector Jpn = getVelocityJacobianForOnePoint(p__, q_nr);
+    // KDL::Vector Jpn = -getVelocityJacobianForOnePoint(p__, q_nr);
     KDL::Vector y = K * Jpd;
     J_(0, q_nr) = 2 * KDL::dot(x, y);
-    J_(1, q_nr) = KDL::dot(n, Jpn);
+    J_(1, q_nr) = KDL::dot(n, Jpd);
+    // J_(2, q_nr) = KDL::dot(v, Jpd);
   }
   return 0;
 }
-
-
-///////////////////////////////////////////////////////////////////////////////
-//  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-// -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-//-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-///////////////////////////////////////////////////////////////////////////////
-//
-//                                 L I N E
-//
-///////////////////////////////////////////////////////////////////////////////
-
 
 ///////////////////////////////////////////////////////////////////////////////
 //  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
@@ -114,15 +106,35 @@ int TDefGeometricProjectionWithNullspace<GeometricPoint, GeometricCylinder>::pro
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////////////
-//  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-// -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-//-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-///////////////////////////////////////////////////////////////////////////////
-//
-//                                 F R A M E
-//
-///////////////////////////////////////////////////////////////////////////////
+// template <>
+// int TDefGeometricProjection<GeometricPoint, GeometricSphere>::project(
+//     std::shared_ptr<GeometricPoint> point,
+//     std::shared_ptr<GeometricSphere> sphere) {
+//   KDL::Vector p1__ = pose_a_.M * point->getPointKDL();
+//   KDL::Vector p1 = pose_a_.p + p1__;
+
+//   KDL::Vector p2__ = pose_b_.M * sphere->getCenterKDL();
+//   KDL::Vector p2 = pose_b_.p + p2__;
+
+//   KDL::Vector d = p2 - p1;
+//   e_(0) = KDL::dot(d, d) - sphere->getRadius() * sphere->getRadius();
+
+//   KDL::Vector x(1,0,0);
+//   KDL::Vector z(0,0,1);
+
+//   KDL::Vector xn = d*x;
+//   KDL::Vector zn = d*z;
+
+//   xn.Normalize();
+//   zn.Normalize();
+
+//   // The task jacobian is J = 2 (p2-p1)^T (Jp2 - Jp1)
+//   for (int q_nr = 0; q_nr < jacobian_a_.columns(); ++q_nr) {
+//     KDL::Vector Jp2p1 = getVelocityJacobianForTwoPoints(p1__, p2__, q_nr);
+//     J_(0, q_nr) = 2 * dot(d, Jp2p1);
+//   }
+//   return 0;
+// }
 
 }  // namespace tasks
 

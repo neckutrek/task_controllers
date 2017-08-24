@@ -67,7 +67,7 @@ int TDefGeometricProjection<GeometricPoint, GeometricPoint>::project(
   // The task jacobian is J = 2 (p2-p1)^T (Jp2 - Jp1)
   for (int q_nr = 0; q_nr < jacobian_a_.columns(); ++q_nr) {
     KDL::Vector Jp2p1 = getVelocityJacobianForTwoPoints(p1__, p2__, q_nr);
-    J_(0, q_nr) = 2 * dot(d, Jp2p1);
+    jacobian_a_(0, q_nr) = 2 * dot(d, Jp2p1);
   }
   return 0;
 }

@@ -18,7 +18,7 @@ cmake_minimum_required(VERSION 2.8.6)
 project(hiqp_core)
 
 # Available backends: qpoases, gurobi, casadi
-set(HIQP_QPSOLVER_BACKEND "gurobi")
+set(HIQP_QPSOLVER_BACKEND "qpoases")
 
 ###
 ### --- DONT EDIT BELOW THIS LINE ---
@@ -92,7 +92,9 @@ target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES}
 if(${HIQP_QPSOLVER_BACKEND} STREQUAL "gurobi")
     target_link_libraries(${PROJECT_NAME} ${GUROBI_LIBS})
 elseif(${HIQP_QPSOLVER_BACKEND} STREQUAL "casadi")
-    target_link_libraries(${PROJECT_NAME} ${CASADI_LIBRARIES} ${GUROBI_LIBS})
+  target_link_libraries(${PROJECT_NAME} ${CASADI_LIBRARIES} ${GUROBI_LIBS})
+elseif(${HIQP_QPSOLVER_BACKEND} STREQUAL "qpoases")
+  target_link_libraries(${PROJECT_NAME} qpOASES)
 endif()
 
 install(DIRECTORY include/${PROJECT_NAME}/

@@ -20,10 +20,6 @@ project(hiqp_ros)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR})
 set(CMAKE_CXX_FLAGS "-O3 -std=c++11 -Wl,-z,defs")
 
-set(GUROBI_INCLUDE_DIR "$ENV{GUROBI_HOME}/include")
-set(GUROBI_LIB_DIR "$ENV{GUROBI_HOME}/lib")
-set(GUROBI_LIBS gurobi_c++ gurobi65)
-
 find_package(catkin REQUIRED COMPONENTS roscpp
                                         controller_interface
                                         visualization_msgs
@@ -43,10 +39,7 @@ catkin_package(CATKIN_DEPENDS roscpp controller_interface visualization_msgs hiq
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
-  ${GUROBI_INCLUDE_DIR}
 )
-
-link_directories(${GUROBI_LIB_DIR})
 
 # hiqp-ros library
 add_library(${PROJECT_NAME} src/hiqp_joint_velocity_controller.cpp
@@ -57,17 +50,17 @@ add_library(${PROJECT_NAME} src/hiqp_joint_velocity_controller.cpp
 
 add_dependencies(${PROJECT_NAME} hiqp_msgs_generate_messages_cpp)
 
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${orocos_kdl_LIBRARIES} ${GUROBI_LIBS})
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
 # hiqp-client library
 add_library(hiqp_client src/hiqp_client.cpp)
 add_dependencies(hiqp_client hiqp_msgs_generate_messages_cpp)
-target_link_libraries(hiqp_client ${catkin_LIBRARIES} ${GUROBI_LIBS})
+target_link_libraries(hiqp_client ${catkin_LIBRARIES})
 
 # hiqp-joint-trajectory-controller
 add_executable(hiqp_joint_trajectory_controller_node src/hiqp_joint_trajectory_controller.cpp)
 add_dependencies(hiqp_joint_trajectory_controller_node ${catkin_EXPORTED_TARGETS})
-target_link_libraries(hiqp_joint_trajectory_controller_node hiqp_client ${catkin_LIBRARIES} ${GUROBI_LIBS})
+target_link_libraries(hiqp_joint_trajectory_controller_node hiqp_client ${catkin_LIBRARIES})
 
 # hiqp_client_test
 add_executable (test_hiqp_client src/test_hiqp_client.cpp)

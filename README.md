@@ -14,7 +14,7 @@ Robert Krug and Todor Stoyanov at the AASS Research Institute at Örebro Univers
 
 ## Installation note
 
-HiQP relies on Gurobi to solve Quadratic Programs (QPs). For academic use, a free license can be obtained at http://www.gurobi.com/. Make sure to set the corresponding environment variables as described in http://www.gurobi.com/documentation/6.5/quickstart_linux/software_installation_guid.html. 
+HiQP relies on qpOASES to solve Quadratic Programs (QPs). qpOASES comes under the GNU LGPL v3 license. 
 
 ## How to cite HiQP
 

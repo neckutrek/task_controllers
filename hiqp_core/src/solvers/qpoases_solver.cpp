@@ -34,12 +34,6 @@
 namespace hiqp {
 
 qpOASESSolver::qpOASESSolver() {
-  // env_.set(GRB_IntParam_OutputFlag, OUTPUT_FLAG);
-  // env_.set(GRB_IntParam_Presolve, PRESOLVE);
-  // env_.set(GRB_DoubleParam_OptimalityTol, OPTIMALITY_TOL);
-  // env_.set(GRB_IntParam_ScaleFlag, SCALE_FLAG);
-  // env_.set(GRB_DoubleParam_TimeLimit, TIME_LIMIT);
-  // env_.set(GRB_IntParam_DualReductions, DUAL_REDUCTIONS);
 }
 
 bool qpOASESSolver::solve(std::vector<double>& solution) {
@@ -149,9 +143,12 @@ void qpOASESSolver::qpOASESProblem::setup() {
 
   // TODO: Create a portal to reach options.
   qpOASES::Options options;
+  options.printLevel = qpOASES::PL_LOW;
+  options.terminationTolerance = OPTIMALITY_TOL;
+  options.boundTolerance = OPTIMALITY_TOL;
   problem_->setOptions(options);
 
-  this->nWSR_ = 100;
+  this->nWSR_ = 1000;
 
   dq_w_ = std::vector<real_t> (solution_dims_ + stage_dims);
 

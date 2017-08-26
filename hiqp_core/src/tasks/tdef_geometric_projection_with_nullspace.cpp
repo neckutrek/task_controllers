@@ -120,6 +120,7 @@ int TDefGeometricProjectionWithNullspace<GeometricPoint, GeometricPlane>::projec
     J_(2, q_nr) = KDL::dot(v2, Jpd);
 
   }
+
   return 0;
 }
 

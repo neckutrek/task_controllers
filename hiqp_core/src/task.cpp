@@ -91,11 +91,12 @@ int Task::init(const std::vector<std::string>& def_params,
   dyn_->active_ = active_;
   dyn_->visible_ = visible_;
 
+  ROS_INFO("Definition created");
   if (def_->initialize(def_params, robot_state) != 0) {
     def_.reset();
     return -5;
   }
-
+ROS_INFO("Definition initalized");
   // ROS_INFO("Task Definition created.");
 
   if (dyn_->init(dyn_params, robot_state, def_->getInitialValue(),
@@ -201,6 +202,10 @@ int Task::constructDefinition(const std::vector<std::string>& def_params) {
     if (prim_type1.compare("point") == 0 && prim_type2.compare("cylinder") == 0) {
       def_ = std::make_shared<
           TDefGeometricProjectionWithNullspace<GeometricPoint, GeometricCylinder> >(
+          geom_prim_map_, visualizer_);
+    } else if (prim_type1.compare("point") == 0 && prim_type2.compare("plane") == 0) {
+      def_ = std::make_shared<
+          TDefGeometricProjectionWithNullspace<GeometricPoint, GeometricPlane> >(
           geom_prim_map_, visualizer_);
     } else {
       printHiqpWarning(

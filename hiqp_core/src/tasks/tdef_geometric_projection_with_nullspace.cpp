@@ -96,6 +96,33 @@ int TDefGeometricProjectionWithNullspace<GeometricPoint, GeometricCylinder>::pro
   return 0;
 }
 
+template <>
+int TDefGeometricProjectionWithNullspace<GeometricPoint, GeometricPlane>::project(
+    std::shared_ptr<GeometricPoint> point,
+    std::shared_ptr<GeometricPlane> plane) {
+  KDL::Vector p__ = pose_a_.M * point->getPointKDL();
+  KDL::Vector p = pose_a_.p + p__;
+
+  KDL::Vector n = pose_b_.M * plane->getNormalKDL();
+
+  KDL::Vector d__ = n * plane->getOffset();
+  KDL::Vector d = d__ + n * KDL::dot(n, pose_b_.p);
+
+  e_(0) = KDL::dot(n, (p - d));
+
+  KDL::Vector v1(1,0,0);
+  KDL::Vector v2(0,1,0);
+
+  for (int q_nr = 0; q_nr < jacobian_a_.columns(); ++q_nr) {
+    KDL::Vector Jpd = -getVelocityJacobianForTwoPoints(p__, d__, q_nr);
+    J_(0, q_nr) = KDL::dot(n, Jpd);
+    J_(1, q_nr) = KDL::dot(v1, Jpd);
+    J_(2, q_nr) = KDL::dot(v2, Jpd);
+
+  }
+  return 0;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 // -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -

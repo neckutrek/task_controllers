@@ -63,9 +63,12 @@ int TDefGeometricProjectionWithNullspace<PrimitiveA, PrimitiveB>::init(
   }
 
   unsigned int n_joints = robot_state->getNumJoints();
-  e_.resize(2);
+  e_.resize(1);
   J_.resize(2, n_joints);
+      J_.resize(3, n_joints);
 
+//  if(parameters.at(2).compare("plane") == 0){
+//  }
   // e_.resize(3);
   // J_.resize(3, n_joints);
 

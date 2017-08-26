@@ -17,6 +17,7 @@
 #pragma once
 #include <hiqp/hiqp_solver.h>
 #include <qpOASES.hpp>
+#include <memory>
 
 using qpOASES::real_t;
 
@@ -60,6 +61,8 @@ class qpOASESSolver : public HiQPSolver {
     void solve();
     void getSolution(std::vector<double>& solution);
 
+    qpOASES::MessageHandling mh;
+    std::shared_ptr<qpOASES::QProblem> problem_;
     HiQPConstraints& hiqp_constraints_;
     unsigned int solution_dims_;
 
@@ -71,6 +74,11 @@ class qpOASESSolver : public HiQPSolver {
     std::vector<real_t> A_;   // Augmented Constraints
     std::vector<real_t> lb_A_; // Lower bound constraints (leq task)
     std::vector<real_t> ub_A_; // Upper bound (geq task)
+
+    std::vector<real_t> dq_w_;
+
+    qpOASES::int_t nWSR_; // No. of working set recalculations required.
+    
   };
 
   unsigned int n_solution_dims_;  // number of solution dimensions

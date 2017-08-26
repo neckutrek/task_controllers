@@ -90,67 +90,70 @@ qpOASESSolver::qpOASESProblem::qpOASESProblem(HiQPConstraints& hiqp_constraints,
 qpOASESSolver::qpOASESProblem::~qpOASESProblem() {}
 
 void qpOASESSolver::qpOASESProblem::setup() {
+  
   unsigned int stage_dims = hiqp_constraints_.n_stage_dims_;
   unsigned int acc_stage_dims = hiqp_constraints_.n_acc_stage_dims_;
   unsigned int total_stage_dims = stage_dims + acc_stage_dims;
 
   // Allocate and set lower and upper bounds for joint velocities and slack
   // variables
-  lb_dq_w_ = std::vector<real_t> (solution_dims_, -qpOASES::INFTY);
-  ub_dq_w_ = std::vector<real_t> (solution_dims_, qpOASES::INFTY);
-
-  unsigned int n = solution_dims_;
-  unsigned int s = stage_dims;
+  lb_dq_w_ = std::vector<real_t> (solution_dims_ + stage_dims, -qpOASES::INFTY);
+  ub_dq_w_ = std::vector<real_t> (solution_dims_ + stage_dims, qpOASES::INFTY);
+  h_ = std::vector<real_t> (solution_dims_ + stage_dims, 0.0);
 
   // Allocate and set right-hand-side constants
-  // rhsides_ = new double[total_stage_dims];
-  // Eigen::Map<Eigen::VectorXd>(rhsides_, total_stage_dims) =
-  //     hqp_constraints_.de_ + hqp_constraints_.w_;
   lb_A_ = std::vector<real_t> (total_stage_dims);
   ub_A_ = std::vector<real_t> (total_stage_dims);
+  std::vector<real_t> rhsides(total_stage_dims);
+
+  Eigen::Map<Eigen::VectorXd>(rhsides.data(), total_stage_dims) =
+      hiqp_constraints_.de_ + hiqp_constraints_.w_;
 
   for(size_t i = 0; i < total_stage_dims; i++) {
-    if(hiqp_constraints_.constraint_signs);
-    
+    if (hiqp_constraints_.constraint_signs_[i] < 0) {
+      ub_A_[i] = rhsides[i];
+      lb_A_[i] = -qpOASES::INFTY;
+    }
+    else if (hiqp_constraints_.constraint_signs_[i] > 0) {
+      lb_A_[i] = rhsides[i];
+      ub_A_[i] = qpOASES::INFTY;
+    }
+    else {
+      ub_A_[i] = rhsides[i];
+      lb_A_[i] = rhsides[i];
+    }
   }
+  
 
-  // STOPPED MODIFYING HERE //
+  A_ = std::vector<real_t>(total_stage_dims*(solution_dims_ + stage_dims), 0.0);
   
   // Allocate and set left-hand-side expressions
-  lhsides_ = new GRBLinExpr[total_stage_dims];
-  coeff_dq_ = new double[solution_dims_];
-  coeff_w_ = new double[stage_dims];
+  //coeff_dq_ = new double[solution_dims_];
+  //coeff_w_ = new double[stage_dims];
 
-  for (unsigned int i = 0; i < acc_stage_dims; ++i) {
-    Eigen::Map<Eigen::VectorXd>(coeff_dq_, solution_dims_) =
-        hqp_constraints_.J_.row(i);
-    lhsides_[i].addTerms(coeff_dq_, dq_, solution_dims_);
+  for (unsigned int i = 0; i < total_stage_dims; ++i) {
+    Eigen::Map<Eigen::VectorXd>(A_.data() + (i * (solution_dims_ + stage_dims)),
+                                solution_dims_) = hiqp_constraints_.J_.row(i);
   }
 
-  for (unsigned int i = 0; i < stage_dims; ++i) {
-    Eigen::Map<Eigen::VectorXd>(coeff_dq_, solution_dims_) =
-        hqp_constraints_.J_.row(acc_stage_dims + i);
-    lhsides_[acc_stage_dims + i].addTerms(coeff_dq_, dq_, solution_dims_);
-    if (acc_stage_dims == 0)
-      // Force the slack variables to be zero in the highest stage
-      lhsides_[acc_stage_dims + i] -= w_[i] * 0.0;
-    else
-      lhsides_[acc_stage_dims + i] -= w_[i];
-  }
+  for (size_t ii = acc_stage_dims; ii < total_stage_dims; ++ii)
+    for (size_t jj = solution_dims_; jj < solution_dims_ + stage_dims; ++jj) {
+      if(ii - acc_stage_dims == jj - solution_dims_)
+        A_[ii * (stage_dims + solution_dims_) + jj] = -1.0;
+      else
+        A_[ii * (stage_dims + solution_dims_) + jj] = 0.0;
+    }
 
-  // Add constraints to the QP model
-  constraints_ =
-      model_.addConstrs(lhsides_, &hqp_constraints_.constraint_signs_[0],
-                        rhsides_, NULL, total_stage_dims);
+  // Create problem instance
+  problem_ = std::shared_ptr<qpOASES::QProblem>(new qpOASES::QProblem(solution_dims_ + stage_dims, total_stage_dims));
 
-  // Add objective function
-  GRBQuadExpr obj;
-  std::fill_n(coeff_dq_, solution_dims_, TIKHONOV_FACTOR);
-  std::fill_n(coeff_w_, stage_dims, 1.0);
-  obj.addTerms(coeff_dq_, dq_, dq_, solution_dims_);
-  obj.addTerms(coeff_w_, w_, w_, stage_dims);
-  model_.setObjective(obj, GRB_MINIMIZE);
-  model_.update();
+  // TODO: Create a portal to reach options.
+  qpOASES::Options options;
+  problem_->setOptions(options);
+
+  this->nWSR_ = 100;
+
+  dq_w_ = std::vector<real_t> (solution_dims_ + stage_dims);
 
   // DEBUG =============================================
   // std::cerr << std::setprecision(2) << "Gurobi solver stage " << s_count << "
@@ -165,39 +168,28 @@ void qpOASESSolver::qpOASESProblem::setup() {
 }
 
 void qpOASESSolver::qpOASESProblem::solve() {
-  model_.optimize();
-  int status = model_.get(GRB_IntAttr_Status);
-  double runtime = model_.get(GRB_DoubleAttr_Runtime);
+  problem_->init(H_.data(), h_.data(), A_.data(), lb_dq_w_.data(),
+                 ub_dq_w_.data(), lb_A_.data(), ub_A_.data(), nWSR_);
+  qpOASES::returnValue rv = problem_->getPrimalSolution(dq_w_.data());
 
-  if (status != GRB_OPTIMAL) {
-    if (status == GRB_TIME_LIMIT)
-      ROS_WARN(
-          "Stage solving runtime %f sec exceeds the set time limit of %f sec.",
-          runtime, TIME_LIMIT);
-    else
-      ROS_ERROR_THROTTLE(
-          10,
-          "In HQPSolver::solve(...): No optimal solution found for stage with "
-          "priority %d. Status is %d.",
-          0, status);
-
-    // model.write("/home/rkg/Desktop/model.lp");
-    // model.write("/home/yumi/Desktop/model.sol");
+  if(rv != 0) {
+    std::cerr << "Error in qpOASESSolver::qpOASESProblem::solve: " << mh.getErrorCodeMessage(rv);
+    
   }
 }
 
 void qpOASESSolver::qpOASESProblem::getSolution(std::vector<double>& solution) {
-  unsigned int stage_dims = hqp_constraints_.n_stage_dims_;
-  unsigned int acc_stage_dims = hqp_constraints_.n_acc_stage_dims_;
+  unsigned int stage_dims = hiqp_constraints_.n_stage_dims_;
+  unsigned int acc_stage_dims = hiqp_constraints_.n_acc_stage_dims_;
 
   for (unsigned int i = 0; i < solution_dims_; ++i)
-    solution.at(i) = dq_[i].get(GRB_DoubleAttr_X);
+    solution.at(i) = dq_w_[i];
 
   for (unsigned int i = 0; i < stage_dims; ++i)
-    hqp_constraints_.w_(acc_stage_dims + i) = w_[i].get(GRB_DoubleAttr_X);
+    hiqp_constraints_.w_(acc_stage_dims + i) = dq_w_[i+solution_dims_];
 }
 
-void qpOASESSolver::HQPConstraints::reset(unsigned int n_solution_dims) {
+void qpOASESSolver::HiQPConstraints::reset(unsigned int n_solution_dims) {
   n_acc_stage_dims_ = 0;
   n_stage_dims_ = 0;
   w_.resize(0);
@@ -206,7 +198,7 @@ void qpOASESSolver::HQPConstraints::reset(unsigned int n_solution_dims) {
   constraint_signs_.clear();
 }
 
-void qpOASESSolver::HQPConstraints::appendConstraints(
+void qpOASESSolver::HiQPConstraints::appendConstraints(
     const HiQPStage& current_stage) {
   // append stage dimensions from the previously solved stage
   n_acc_stage_dims_ += n_stage_dims_;

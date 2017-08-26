@@ -82,10 +82,10 @@ bool GurobiSolver::solve(std::vector<double>& solution) {
       qp_problem.getSolution(solution);
     } catch (GRBException e) {
       ROS_ERROR_THROTTLE(10,
-                                 "In GurobiSolver::QPProblem::getSolution : "
-                                 "Gurobi exception with error code: %d, and "
-                                 "error_message: %s.",
-                                 e.getErrorCode(), e.getMessage().c_str());
+                         "In GurobiSolver::QPProblem::getSolution : "
+                         "Gurobi exception with error code: %d, and "
+                         "error_message: %s.",
+                         e.getErrorCode(), e.getMessage().c_str());
       return false;
     }
   }

@@ -27,6 +27,9 @@
 #ifdef HIQP_GUROBI
 #include <hiqp/solvers/gurobi_solver.h>
 #endif
+#ifdef HIQP_QPOASES
+#include <hiqp/solvers/qpoases_solver.h>
+#endif
 
 #include <Eigen/Dense>
 
@@ -43,6 +46,9 @@ TaskManager::TaskManager(std::shared_ptr<Visualizer> visualizer)
 #endif
 #ifdef HIQP_GUROBI
   solver_ = std::make_shared<GurobiSolver>();
+#endif
+#ifdef HIQP_QPOASES
+  solver_ = std::make_shared<qpOASESSolver>();
 #endif
 }
 

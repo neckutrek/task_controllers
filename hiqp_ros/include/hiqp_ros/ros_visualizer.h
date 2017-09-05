@@ -80,7 +80,7 @@ class ROSVisualizer : public hiqp::Visualizer {
 
   const std::string kNamespace = "/yumi";
   const double kInfiniteLength = 12;
-  const double kPointRadius = 0.005;
+  const double kPointRadius = 0.008;
   const double kLineRadius = 0.0005;
   const double kPlaneThickness = 0.001;
   const double kFrameArrowRadius = 0.0017;

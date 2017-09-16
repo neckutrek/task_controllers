@@ -83,6 +83,11 @@ int TDefGeometricProjectionWithNullspace<GeometricPoint, GeometricCylinder>::pro
   KDL::Vector x2 = x;
   x2(2) = 0;
   KDL::Vector n = x2*v;
+
+    KDL::Vector m = x;
+    m(0) = 0;
+    m(1) = 0;
+    m(2) = 1;
   n.Normalize();
   v.Normalize();
   for (int q_nr = 0; q_nr < jacobian_a_.columns(); ++q_nr) {
@@ -91,7 +96,7 @@ int TDefGeometricProjectionWithNullspace<GeometricPoint, GeometricCylinder>::pro
     KDL::Vector y = K * Jpd;
     J_(0, q_nr) = 2 * KDL::dot(x, y);
     J_(1, q_nr) = KDL::dot(n, Jpd);
-    // J_(2, q_nr) = KDL::dot(v, Jpd);
+    J_(2, q_nr) = KDL::dot(m, Jpd);
   }
   return 0;
 }

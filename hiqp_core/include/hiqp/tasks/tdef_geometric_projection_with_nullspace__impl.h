@@ -99,17 +99,19 @@ int TDefGeometricProjectionWithNullspace<PrimitiveA, PrimitiveB>::init(
   task_types_.clear();
 
 
-  if ((parameters.at(1).compare("point") == 0 && parameters.at(2).compare("cylinder") == 0) || (parameters.at(2).compare("point") == 0 && parameters.at(1).compare("cylinder") == 0)) {
-    task_types_.resize(3);
+  // if ((parameters.at(1).compare("point") == 0 && parameters.at(2).compare("cylinder") == 0) || (parameters.at(2).compare("point") == 0 && parameters.at(1).compare("cylinder") == 0)) {
+  //   task_types_.resize(3);
 
-    e_.resize(2);
-    J_.resize(2, n_joints);
-    task_types_.resize(2);
-    task_types_.at(0) = sign;
-    task_types_.at(1) = sign;
+  //   e_.resize(2);
+  //   J_.resize(2, n_joints);
+  //   task_types_.resize(2);
+  //   task_types_.at(0) = sign;
+  //   task_types_.at(1) = sign;
 
-  }
-  else{
+    
+
+  // }
+  // else{
     e_.resize(3);
     J_.resize(3, n_joints);
     task_types_.resize(3);
@@ -118,7 +120,7 @@ int TDefGeometricProjectionWithNullspace<PrimitiveA, PrimitiveB>::init(
     task_types_.at(1) = sign;
     task_types_.at(2) = sign;
 
-  }
+  // }
 
   return 0;
 }

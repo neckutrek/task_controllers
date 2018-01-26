@@ -22,7 +22,7 @@ set(CMAKE_CXX_FLAGS "-O3 -std=c++11 -Wl,-z,defs")
 
 set(GUROBI_INCLUDE_DIR "$ENV{GUROBI_HOME}/include")
 set(GUROBI_LIB_DIR "$ENV{GUROBI_HOME}/lib")
-set(GUROBI_LIBS gurobi_c++ gurobi65)
+set(GUROBI_LIBS gurobi_c++ gurobi75)
 
 find_package(catkin REQUIRED COMPONENTS roscpp
                                         controller_interface

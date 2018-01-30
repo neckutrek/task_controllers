@@ -354,7 +354,7 @@ bool HiQPClient::setJointAngles(const std::vector<double>& joint_angles,
   }
 
   bool ret = this->setTask("joint_configuration", 3, true, true, true, def_params,
-                {"TDynLinear", "0.75"});
+                {"TDynLinear", "0.5"});
   if (ret) {
       if (remove) {
 	  waitForCompletion({"joint_configuration"}, {TaskDoneReaction::REMOVE},
